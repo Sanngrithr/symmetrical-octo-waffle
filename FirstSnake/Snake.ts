@@ -1,47 +1,54 @@
-namespace FirstFudge {
+namespace Snake {
     import f = FudgeCore;
+    export class Snake extends f.Node {
 
-    window.addEventListener("load", hndLoad);
-    export let snakeViewport: f.Viewport;
+        public direction: f.Vector3 = f.Vector3.X();
 
-    function hndLoad(_event: Event): void {
-        const canvas: HTMLCanvasElement = document.querySelector("canvas");
-        f.RenderManager.initialize();
-        f.Debug.log(canvas);
-
-        let snake: f.Node = new f.Node("Snake");
-
+        constructor() {
+            super("Snake");
+            console.log("Creating Snake");
+            this.createSegments(4);
+        }
         
-        let mesh: f.MeshQuad = new f.MeshQuad();
-        
-        let mtrSolidWhite: f.Material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.CSS("WHITE")));
+        public move(): void {
+            let child: f.Node = this.getChildren()[0];
+            let cmpPrev: f.ComponentTransform = child.getComponent(f.ComponentTransform);
+            let mtxHead: f.Matrix4x4 = cmpPrev.local.copy;
+            // Maybe problem using reference
+            mtxHead.translate(this.direction);
+            let cmpNew: f.ComponentTransform = new f.ComponentTransform(mtxHead);
 
-        for (let _i: number = 0; _i <= 3; _i++) {
-
-            let snakeSquare: f.Node = new f.Node("square");
-
-            let cmpMesh: f.ComponentMesh = new f.ComponentMesh(mesh);
-            snakeSquare.addComponent(cmpMesh);
-
-            let cmpMaterial: f.ComponentMaterial = new f.ComponentMaterial(mtrSolidWhite);
-            snakeSquare.addComponent(cmpMaterial);
-
-            snakeSquare.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(new f.Vector3(-_i, 0, 0))));
-
-            snake.appendChild(snakeSquare);
+            for (let segment of this.getChildren()) {
+                cmpPrev = segment.getComponent(f.ComponentTransform);
+                segment.removeComponent(cmpPrev);
+                segment.addComponent(cmpNew);
+                cmpNew = cmpPrev;
+            }
         }
 
-        
+        private createSegments(_segments: number): void {
+            let mesh: f.MeshQuad = new f.MeshQuad();
+            let mtrSolidWhite: f.Material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.CSS("WHITE")));
 
-        let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
-        
-        cmpCamera.pivot.translateZ(10);
-        cmpCamera.pivot.rotateY(180);
-        
-        viewport = new f.Viewport();
-        viewport.initialize("Viewport", snake, cmpCamera, canvas);
-        f.Debug.log(viewport);
+            for (let i: number = 0; i < _segments; i++) {
+                let node: f.Node = new f.Node("Segment");
 
-        viewport.draw();
+                let cmpMesh: f.ComponentMesh = new f.ComponentMesh(mesh);
+                
+                node.addComponent(cmpMesh);
+                cmpMesh.pivot.scale(f.Vector3.ONE(0.8));
+
+                let cmpMaterial: f.ComponentMaterial = new f.ComponentMaterial(mtrSolidWhite);
+                node.addComponent(cmpMaterial);
+
+                node.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(new f.Vector3(-1 * i, 0, 0))));
+
+                this.appendChild(node);
+            }
+        }
+
     }
 }
+
+// Control snake (absolute/relative?)
+// Concept on eating things
