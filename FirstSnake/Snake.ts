@@ -9,14 +9,30 @@ namespace Snake {
             console.log("Creating Snake");
             this.createSegments(4);
         }
+
+        public changeDirection(_right: boolean): void {
+            f.Debug.log("Changing Direction!");
+            if (_right == false) {
+                let x: number = Math.round(Math.cos(90) * this.direction.x - Math.sin(90) * this.direction.y);
+                let y: number = Math.round(Math.sin(90) * this.direction.x + Math.cos(90) * this.direction.y);
+                this.direction = new f.Vector3(x, y, 0);
+                return;
+            }
+            else {
+                let x: number = Math.round(Math.cos(-90) * this.direction.x - Math.sin(-90) * this.direction.y);
+                let y: number = Math.round(Math.sin(-90) * this.direction.x + Math.cos(-90) * this.direction.y);
+                this.direction = new f.Vector3(x, y, 0);
+                return;
+            }
+        }
         
         public move(): void {
             let child: f.Node = this.getChildren()[0];
             let cmpPrev: f.ComponentTransform = child.getComponent(f.ComponentTransform);
             let mtxHead: f.Matrix4x4 = cmpPrev.local.copy;
-            // Maybe problem using reference
             mtxHead.translate(this.direction);
             let cmpNew: f.ComponentTransform = new f.ComponentTransform(mtxHead);
+            
 
             for (let segment of this.getChildren()) {
                 cmpPrev = segment.getComponent(f.ComponentTransform);

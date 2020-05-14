@@ -9,11 +9,25 @@ var Snake;
             console.log("Creating Snake");
             this.createSegments(4);
         }
+        changeDirection(_right) {
+            f.Debug.log("Changing Direction!");
+            if (_right == false) {
+                let x = Math.round(Math.cos(90) * this.direction.x - Math.sin(90) * this.direction.y);
+                let y = Math.round(Math.sin(90) * this.direction.x + Math.cos(90) * this.direction.y);
+                this.direction = new f.Vector3(x, y, 0);
+                return;
+            }
+            else {
+                let x = Math.round(Math.cos(-90) * this.direction.x - Math.sin(-90) * this.direction.y);
+                let y = Math.round(Math.sin(-90) * this.direction.x + Math.cos(-90) * this.direction.y);
+                this.direction = new f.Vector3(x, y, 0);
+                return;
+            }
+        }
         move() {
             let child = this.getChildren()[0];
             let cmpPrev = child.getComponent(f.ComponentTransform);
             let mtxHead = cmpPrev.local.copy;
-            // Maybe problem using reference
             mtxHead.translate(this.direction);
             let cmpNew = new f.ComponentTransform(mtxHead);
             for (let segment of this.getChildren()) {
