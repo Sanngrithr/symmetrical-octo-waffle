@@ -6,7 +6,7 @@ namespace Snake3D {
     let snake: Snake;
     let world: f.Node = new f.Node("World");
 
-    let collisionMap: Map<f.Vector3, CollisionEvents[]> = new Map<f.Vector3, CollisionEvents[]>();
+    let collisionMap: Map<string, GroundBlock> = new Map<string, GroundBlock>();
 
     function hndLoad(_event: Event): void {
         const canvas: HTMLCanvasElement = document.querySelector("canvas");
@@ -18,10 +18,13 @@ namespace Snake3D {
         //create some ground blocks
         for (let _i: number = -10; _i <= 10; _i++) {
             for (let _j: number = -10; _j <= 10; _j++) {
-                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -1, _j), collisionMap);
+                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -1, _j));
                 world.addChild(block);
+                collisionMap.set(block.cmpTransform.local.translation.toString(), block);
             }
         }
+
+        f.Debug.log(new f.Vector3(-10, -1, -10).toString());
 
         //add ambient lightsource
         let mainLight: f.LightAmbient = new f.LightAmbient(new f.Color(0.4, 0.4, 0.4, 1));

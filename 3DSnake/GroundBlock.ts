@@ -3,8 +3,10 @@ namespace Snake3D {
     export class GroundBlock extends f.Node {
 
         public position: f.Vector3;
+        public _collisionEvents: CollisionEvents[];
         
-        constructor(_position: f.Vector3, _collisionMap: Map<f.Vector3, CollisionEvents[]>) {
+        
+        constructor(_position: f.Vector3) {
             super("Ground");
             console.log("Creating Ground");
 
@@ -20,7 +22,7 @@ namespace Snake3D {
 
             this.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(_position)));
 
-            _collisionMap.set(_position, [CollisionEvents.WALL, CollisionEvents.GROUND]);
+            this._collisionEvents = [CollisionEvents.WALL, CollisionEvents.GROUND];
 
         }
     }

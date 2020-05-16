@@ -3,7 +3,7 @@ var Snake3D;
 (function (Snake3D) {
     var f = FudgeCore;
     class GroundBlock extends f.Node {
-        constructor(_position, _collisionMap) {
+        constructor(_position) {
             super("Ground");
             console.log("Creating Ground");
             //maybe define the resources in a builder superclass that manages building the levels
@@ -15,7 +15,7 @@ var Snake3D;
             this.addComponent(cmpMesh);
             this.addComponent(cmpMat);
             this.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(_position)));
-            _collisionMap.set(_position, [Snake3D.CollisionEvents.WALL, Snake3D.CollisionEvents.GROUND]);
+            this._collisionEvents = [Snake3D.CollisionEvents.WALL, Snake3D.CollisionEvents.GROUND];
         }
     }
     Snake3D.GroundBlock = GroundBlock;

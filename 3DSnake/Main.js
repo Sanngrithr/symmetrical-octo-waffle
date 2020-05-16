@@ -14,10 +14,12 @@ var Snake3D;
         //create some ground blocks
         for (let _i = -10; _i <= 10; _i++) {
             for (let _j = -10; _j <= 10; _j++) {
-                let block = new Snake3D.GroundBlock(new f.Vector3(_i, -1, _j), collisionMap);
+                let block = new Snake3D.GroundBlock(new f.Vector3(_i, -1, _j));
                 world.addChild(block);
+                collisionMap.set(block.cmpTransform.local.translation.toString(), block);
             }
         }
+        f.Debug.log(new f.Vector3(-10, -1, -10).toString());
         //add ambient lightsource
         let mainLight = new f.LightAmbient(new f.Color(0.4, 0.4, 0.4, 1));
         let cmpLight = new f.ComponentLight(mainLight);

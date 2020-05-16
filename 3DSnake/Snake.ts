@@ -53,18 +53,20 @@ namespace Snake3D {
         }
 
         //ground the snake if possible
-        public snakesDontFly(_collisionMap: Map<f.Vector3, CollisionEvents[]>): void {
+        public snakesDontFly(_collisionMap: Map<string, GroundBlock>): void {
             let tmpHead: f.Matrix4x4 = this.getHeadPosition().copy;
             this.grounded = false;
 
-            if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z))) {
+            f.Debug.log(_collisionMap.has(new f.Vector3(0, 0, 0).toString()));
+
+            if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
                 f.Debug.log("Object found");
-                let tmpCol: CollisionEvents[] = _collisionMap.get(tmpHead.translation);
+                let tmpCol: CollisionEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
                 for (let i: number = 0; i < tmpCol.length; i++) {
-                    if (tmpCol[i] == CollisionEvents.GROUND) {
-                        f.Debug.log("Snake knows it*s place");
-                        this.grounded = true;
-                    }
+                   if (tmpCol[i] == CollisionEvents.GROUND) {
+                       f.Debug.log("Snake knows it*s place");
+                       this.grounded = true;
+                   }
                 }
             }
         }
@@ -86,7 +88,6 @@ namespace Snake3D {
                 mtxHead.translateY(-1);
             }
 
-
             let cmpNew: f.ComponentTransform = new f.ComponentTransform(mtxHead);
             
             //now that the snake knows where it's going, move the rest of it
@@ -96,7 +97,7 @@ namespace Snake3D {
                 segment.addComponent(cmpNew);
                 cmpNew = cmpPrev;
             }
-        }
+            }
 
         private createSegments(_segments: number): void {
             let mesh: f.MeshCube = new f.MeshCube();

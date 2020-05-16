@@ -51,9 +51,10 @@ var Snake3D;
         snakesDontFly(_collisionMap) {
             let tmpHead = this.getHeadPosition().copy;
             this.grounded = false;
-            if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z))) {
+            f.Debug.log(_collisionMap.has(new f.Vector3(0, 0, 0).toString()));
+            if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
                 f.Debug.log("Object found");
-                let tmpCol = _collisionMap.get(tmpHead.translation);
+                let tmpCol = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
                 for (let i = 0; i < tmpCol.length; i++) {
                     if (tmpCol[i] == Snake3D.CollisionEvents.GROUND) {
                         f.Debug.log("Snake knows it*s place");
