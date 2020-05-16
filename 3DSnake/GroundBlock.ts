@@ -24,6 +24,8 @@ namespace Snake3D {
 
             this._collisionEvents = [CollisionEvents.WALL, CollisionEvents.GROUND];
 
+            
+
         }
     }
 }
