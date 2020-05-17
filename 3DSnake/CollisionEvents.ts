@@ -3,6 +3,7 @@ namespace Snake3D {
         FRUIT,
         WALL,
         CLIMB,
-        GROUND
+        GROUND,
+        RAMP
     }
 }

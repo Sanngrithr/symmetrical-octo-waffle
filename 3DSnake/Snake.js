@@ -8,8 +8,10 @@ var Snake3D;
             this.direction = f.Vector3.X(); //tells the snake in which direction it's going to move
             this.newDirection = this.direction; //for self-collision checking purposes
             this.grounded = true;
+            this.snakeMesh = new f.MeshCube();
+            this.mtrSolidWhite = new f.Material("SolidWhite", f.ShaderFlat, new f.CoatColored(f.Color.CSS("WHITE")));
             console.log("Creating Snake");
-            this.createSegments(12);
+            this.createSegments(2);
         }
         /* Snake Movement
         The Movement controls need to be adjusted later,
@@ -45,25 +47,22 @@ var Snake3D;
         getHeadPosition() {
             let headNode = this.getChildren()[0];
             let headTransform = headNode.getComponent(f.ComponentTransform);
-            return headTransform.local;
+            return headTransform.local.copy;
         }
         //ground the snake if possible
         snakesDontFly(_collisionMap) {
-            let tmpHead = this.getHeadPosition().copy;
+            let tmpHead = this.getHeadPosition();
             this.grounded = false;
-            f.Debug.log(_collisionMap.has(new f.Vector3(0, 0, 0).toString()));
             if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
-                f.Debug.log("Object found");
                 let tmpCol = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
                 for (let i = 0; i < tmpCol.length; i++) {
                     if (tmpCol[i] == Snake3D.CollisionEvents.GROUND) {
-                        f.Debug.log("Snake knows it*s place");
                         this.grounded = true;
                     }
                 }
             }
         }
-        move() {
+        move(_collMap) {
             //find the transform of the snake head
             let headNode = this.getChildren()[0];
             let cmpPrev = headNode.getComponent(f.ComponentTransform);
@@ -78,6 +77,9 @@ var Snake3D;
                 mtxHead.translateY(-1);
             }
             let cmpNew = new f.ComponentTransform(mtxHead);
+            //after moving the head, check if you have collided with something and handle it
+            //this is the best time to create a new segment after growing
+            this.checkCollision(_collMap);
             //now that the snake knows where it's going, move the rest of it
             for (let segment of this.getChildren()) {
                 cmpPrev = segment.getComponent(f.ComponentTransform);
@@ -86,18 +88,35 @@ var Snake3D;
                 cmpNew = cmpPrev;
             }
         }
+        // private updateSnakeColliders(_collMap: Map<string, GroundBlock>) {
+        //collisionmap only accepts groundblock atm, maybe extend it to node or a block superclass?
+        // }
         createSegments(_segments) {
-            let mesh = new f.MeshCube();
-            let mtrSolidWhite = new f.Material("SolidWhite", f.ShaderFlat, new f.CoatColored(f.Color.CSS("WHITE")));
             for (let i = 0; i < _segments; i++) {
                 let node = new f.Node("Segment");
-                let cmpMesh = new f.ComponentMesh(mesh);
+                let cmpMesh = new f.ComponentMesh(this.snakeMesh);
                 node.addComponent(cmpMesh);
                 cmpMesh.pivot.scale(f.Vector3.ONE(0.8));
-                let cmpMaterial = new f.ComponentMaterial(mtrSolidWhite);
+                let cmpMaterial = new f.ComponentMaterial(this.mtrSolidWhite);
                 node.addComponent(cmpMaterial);
                 node.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(new f.Vector3(-1 * i, 0, 0))));
                 this.appendChild(node);
+            }
+        }
+        checkCollision(collisionMap) {
+            let headPos = this.getHeadPosition().translation;
+            if (collisionMap.has(headPos.toString())) {
+                let tmpCol = collisionMap.get(headPos.toString())._collisionEvents;
+                for (let _i = 0; _i < tmpCol.length; _i++) {
+                    switch (tmpCol[_i]) {
+                        case Snake3D.CollisionEvents.FRUIT:
+                            break;
+                        case Snake3D.CollisionEvents.WALL:
+                            break;
+                        case Snake3D.CollisionEvents.RAMP:
+                            break;
+                    }
+                }
             }
         }
     }

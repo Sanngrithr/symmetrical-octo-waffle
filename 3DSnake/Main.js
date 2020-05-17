@@ -5,7 +5,13 @@ var Snake3D;
     window.addEventListener("load", hndLoad);
     let snake;
     let world = new f.Node("World");
+    //seperate time for updating the snake to uncouple it from drawing updates
+    let snakeTime = new f.Time();
     let collisionMap = new Map();
+    //camera setup
+    let cameraAnchor;
+    let cmpCamera = new f.ComponentCamera();
+    let anchorTransformation = new f.Vector3(0, 15, 20);
     function hndLoad(_event) {
         const canvas = document.querySelector("canvas");
         f.Debug.log(canvas);
@@ -30,48 +36,56 @@ var Snake3D;
         cmpDirLight.pivot.rotateX(40);
         cmpDirLight.pivot.rotateY(-160);
         world.addComponent(cmpDirLight);
-        //initialize camera
-        let cmpCamera = new f.ComponentCamera();
-        cmpCamera.pivot.translateY(10);
-        cmpCamera.pivot.translateZ(20);
+        //set up initial camera rotation
+        cmpCamera.pivot.translate(anchorTransformation);
+        cameraAnchor = snake.getHeadPosition();
         cmpCamera.pivot.rotateY(180);
         cmpCamera.pivot.rotateX(40);
         Snake3D.viewport = new f.Viewport();
         Snake3D.viewport.initialize("Viewport", world, cmpCamera, canvas);
-        f.Debug.log(Snake3D.viewport);
+        //keyboard input-handling
         document.addEventListener("keydown", control);
+        //set the render loop
         f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
-        f.Loop.start(f.LOOP_MODE.TIME_REAL, 2);
+        f.Loop.start(f.LOOP_MODE.TIME_REAL, 30);
+        //set the snake update loop --> snake moves only 2 times per second
+        snakeTime.setTimer(500, 0, snakeUpdate);
     }
     function update(_event) {
+        controlCamera();
         Snake3D.viewport.draw();
-        snake.move();
+        //lerp the camera position in the draw update towards the snake head
+    }
+    function snakeUpdate(_event) {
+        snake.move(collisionMap);
         snake.snakesDontFly(collisionMap);
     }
     function control(_event) {
         switch (_event.code) {
-            case f.KEYBOARD_CODE.D:
+            case f.KEYBOARD_CODE.D || f.KEYBOARD_CODE.ARROW_RIGHT:
                 snake.changeDirection(true);
                 break;
-            case f.KEYBOARD_CODE.A:
+            case f.KEYBOARD_CODE.A || f.KEYBOARD_CODE.ARROW_LEFT:
                 snake.changeDirection(false);
                 break;
             default:
                 break;
         }
-        // let direction: boolean;
-        // direction = f.Keyboard.mapToValue(true, false, [f.KEYBOARD_CODE.D]);
-        // direction = f.Keyboard.mapToValue(false, false, [f.KEYBOARD_CODE.A]);
-        // if (_event.code == f.KEYBOARD_CODE.D || _event.code == f.KEYBOARD_CODE.A) {
-        //     snake.changeDirection(direction);
-        // }
-        // direction.add(f.Keyboard.mapToValue(f.Vector3.Y(-1), f.Vector3.ZERO(), [f.KEYBOARD_CODE.S, f.KEYBOARD_CODE.ARROW_DOWN]));
-        // if (direction.y == 0) {
-        //   direction = f.Keyboard.mapToValue(f.Vector3.X(), f.Vector3.ZERO(), [f.KEYBOARD_CODE.D, f.KEYBOARD_CODE.ARROW_RIGHT]);
-        //   direction.add(f.Keyboard.mapToValue(f.Vector3.X(-1), f.Vector3.ZERO(), [f.KEYBOARD_CODE.A, f.KEYBOARD_CODE.ARROW_LEFT]));
-        // }
-        // if (!direction.equals(f.Vector3.ZERO()))
-        //   snake.direction = direction;
+    }
+    function controlCamera() {
+        cameraAnchor = snake.getHeadPosition();
+        cameraAnchor.translate(anchorTransformation);
+        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchor.translation, 0.05);
+    }
+    function lerp(_from, _to, _percent) {
+        let result = f.Vector3.ZERO();
+        result.x = (_to.x - _from.x) * _percent + _from.x;
+        result.y = (_to.y - _from.y) * _percent + _from.y;
+        result.z = (_to.z - _from.z) * _percent + _from.z;
+        if (result.magnitude < 0.01) {
+            return f.Vector3.ZERO();
+        }
+        return result;
     }
 })(Snake3D || (Snake3D = {}));
 //# sourceMappingURL=Main.js.map
