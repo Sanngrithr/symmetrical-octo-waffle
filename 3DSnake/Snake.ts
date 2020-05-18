@@ -3,7 +3,7 @@ namespace Snake3D {
     export class Snake extends f.Node {
 
         public direction: f.Vector3 = f.Vector3.X(); //tells the snake in which direction it's going to move
-        private newDirection: f.Vector3 = this.direction; //for self-collision checking purposes
+        private newDirection: f.Vector3 = this.direction; //for self-collision checking purposes; the snake can't invert itself
         private grounded: boolean = true;
 
         private snakeMesh: f.MeshCube = new f.MeshCube();
