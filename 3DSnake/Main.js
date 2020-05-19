@@ -25,7 +25,14 @@ var Snake3D;
                 collisionMap.set(block.cmpTransform.local.translation.toString(), block);
             }
         }
-        f.Debug.log(new f.Vector3(-10, -1, -10).toString());
+        //second, lower platform
+        for (let _i = -5; _i <= 15; _i++) {
+            for (let _j = -5; _j <= 15; _j++) {
+                let block = new Snake3D.GroundBlock(new f.Vector3(_i, -6, _j));
+                world.addChild(block);
+                collisionMap.set(block.cmpTransform.local.translation.toString(), block);
+            }
+        }
         //add ambient lightsource
         let mainLight = new f.LightAmbient(new f.Color(0.4, 0.4, 0.4, 1));
         let cmpLight = new f.ComponentLight(mainLight);

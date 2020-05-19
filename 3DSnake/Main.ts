@@ -31,7 +31,14 @@ namespace Snake3D {
             }
         }
 
-        f.Debug.log(new f.Vector3(-10, -1, -10).toString());
+        //second, lower platform
+        for (let _i: number = -5; _i <= 15; _i++) {
+            for (let _j: number = -5; _j <= 15; _j++) {
+                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -6, _j));
+                world.addChild(block);
+                collisionMap.set(block.cmpTransform.local.translation.toString(), block);
+            }
+        }
 
         //add ambient lightsource
         let mainLight: f.LightAmbient = new f.LightAmbient(new f.Color(0.4, 0.4, 0.4, 1));

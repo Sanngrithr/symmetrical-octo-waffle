@@ -12,7 +12,7 @@ namespace Snake3D {
         constructor() {
             super("Snake");
             console.log("Creating Snake");
-            this.createSegments(2);
+            this.createSegments(12);
         }
 
         /* Snake Movement

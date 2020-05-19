@@ -6,12 +6,12 @@ var Snake3D;
         constructor() {
             super("Snake");
             this.direction = f.Vector3.X(); //tells the snake in which direction it's going to move
-            this.newDirection = this.direction; //for self-collision checking purposes
+            this.newDirection = this.direction; //for self-collision checking purposes; the snake can't invert itself
             this.grounded = true;
             this.snakeMesh = new f.MeshCube();
             this.mtrSolidWhite = new f.Material("SolidWhite", f.ShaderFlat, new f.CoatColored(f.Color.CSS("WHITE")));
             console.log("Creating Snake");
-            this.createSegments(2);
+            this.createSegments(12);
         }
         /* Snake Movement
         The Movement controls need to be adjusted later,
