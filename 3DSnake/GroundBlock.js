@@ -2,8 +2,8 @@
 var Snake3D;
 (function (Snake3D) {
     var f = FudgeCore;
-    class GroundBlock extends f.Node {
-        constructor(_position) {
+    class GroundBlock extends Snake3D.Block {
+        constructor(_position, _isFruitSpawn) {
             super("Ground");
             console.log("Creating Ground");
             //maybe define the resources in a builder superclass that manages building the levels
@@ -15,7 +15,12 @@ var Snake3D;
             this.addComponent(cmpMesh);
             this.addComponent(cmpMat);
             this.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(_position)));
-            this._collisionEvents = [Snake3D.CollisionEvents.WALL, Snake3D.CollisionEvents.GROUND];
+            if (_isFruitSpawn) {
+                this._collisionEvents = [Snake3D.SnakeEvents.WALL, Snake3D.SnakeEvents.GROUND, Snake3D.SnakeEvents.FRUITSPAWN];
+            }
+            else {
+                this._collisionEvents = [Snake3D.SnakeEvents.WALL, Snake3D.SnakeEvents.GROUND];
+            }
         }
     }
     Snake3D.GroundBlock = GroundBlock;

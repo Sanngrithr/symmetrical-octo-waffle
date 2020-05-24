@@ -1,11 +1,11 @@
 namespace Snake3D {
     import f = FudgeCore;
-    export class GroundBlock extends f.Node {
+    export class GroundBlock extends Block {
 
         public position: f.Vector3;
-        public _collisionEvents: CollisionEvents[];
+        public _collisionEvents: SnakeEvents[];
         
-        constructor(_position: f.Vector3) {
+        constructor(_position: f.Vector3, _isFruitSpawn: boolean) {
             super("Ground");
             console.log("Creating Ground");
 
@@ -21,7 +21,11 @@ namespace Snake3D {
 
             this.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(_position)));
 
-            this._collisionEvents = [CollisionEvents.WALL, CollisionEvents.GROUND];
+            if (_isFruitSpawn) {
+                this._collisionEvents = [SnakeEvents.WALL, SnakeEvents.GROUND, SnakeEvents.FRUITSPAWN];
+            } else {
+                this._collisionEvents = [SnakeEvents.WALL, SnakeEvents.GROUND];
+            }
         }
     }
 }

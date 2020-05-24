@@ -8,6 +8,7 @@ var Snake3D;
     //seperate time for updating the snake to uncouple it from drawing updates
     let snakeTime = new f.Time();
     let collisionMap = new Map();
+    let blockarray = [];
     //camera setup
     let cameraAnchor;
     let cmpCamera = new f.ComponentCamera();
@@ -20,15 +21,16 @@ var Snake3D;
         //create some ground blocks
         for (let _i = -10; _i <= 10; _i++) {
             for (let _j = -10; _j <= 10; _j++) {
-                let block = new Snake3D.GroundBlock(new f.Vector3(_i, -1, _j));
+                let block = new Snake3D.GroundBlock(new f.Vector3(_i, -1, _j), true);
                 world.addChild(block);
+                blockarray.push(block);
                 collisionMap.set(block.cmpTransform.local.translation.toString(), block);
             }
         }
         //second, lower platform
         for (let _i = -5; _i <= 15; _i++) {
             for (let _j = -5; _j <= 15; _j++) {
-                let block = new Snake3D.GroundBlock(new f.Vector3(_i, -6, _j));
+                let block = new Snake3D.GroundBlock(new f.Vector3(_i, -6, _j), false);
                 world.addChild(block);
                 collisionMap.set(block.cmpTransform.local.translation.toString(), block);
             }
@@ -54,9 +56,10 @@ var Snake3D;
         document.addEventListener("keydown", control);
         //set the render loop
         f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
-        f.Loop.start(f.LOOP_MODE.TIME_REAL, 30);
+        f.Loop.start(f.LOOP_MODE.TIME_REAL, 60);
         //set the snake update loop --> snake moves only 2 times per second
         snakeTime.setTimer(500, 0, snakeUpdate);
+        snakeTime.setTimer(5000, 0, spawnFruit);
     }
     function update(_event) {
         controlCamera();
@@ -66,6 +69,21 @@ var Snake3D;
     function snakeUpdate(_event) {
         snake.move(collisionMap);
         snake.snakesDontFly(collisionMap);
+    }
+    function spawnFruit() {
+        let continueLoop = true;
+        while (continueLoop) {
+            let rand = Math.random();
+            let index = Math.round(blockarray.length * rand) - 1;
+            if (blockarray[index]._collisionEvents.includes(Snake3D.SnakeEvents.FRUITSPAWN)) {
+                let fruit = new Snake3D.FruitBlock(blockarray[index].mtxLocal.translation);
+                fruit.mtxLocal.translateY(1);
+                world.addChild(fruit);
+                collisionMap.set(fruit.mtxLocal.translation.toString(), fruit);
+                f.Debug.log("spawning fruit at " + fruit.mtxLocal.translation.toString());
+                continueLoop = false;
+            }
+        }
     }
     function control(_event) {
         switch (_event.code) {

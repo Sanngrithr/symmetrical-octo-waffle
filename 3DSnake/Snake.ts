@@ -2,17 +2,19 @@ namespace Snake3D {
     import f = FudgeCore;
     export class Snake extends f.Node {
 
+        public isAlive: boolean = true;
+
         public direction: f.Vector3 = f.Vector3.X(); //tells the snake in which direction it's going to move
         private newDirection: f.Vector3 = this.direction; //for self-collision checking purposes; the snake can't invert itself
         private grounded: boolean = true;
 
-        private snakeMesh: f.MeshCube = new f.MeshCube();
+        private snakeMesh: f.MeshSphere = new f.MeshSphere(36, 36);
         private mtrSolidWhite: f.Material = new f.Material("SolidWhite", f.ShaderFlat, new f.CoatColored(f.Color.CSS("WHITE")));
 
         constructor() {
             super("Snake");
             console.log("Creating Snake");
-            this.createSegments(12);
+            this.createSegments(3);
         }
 
         /* Snake Movement
@@ -61,9 +63,9 @@ namespace Snake3D {
             this.grounded = false;
 
             if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
-                let tmpCol: CollisionEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
+                let tmpCol: SnakeEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
                 for (let i: number = 0; i < tmpCol.length; i++) {
-                   if (tmpCol[i] == CollisionEvents.GROUND) {
+                   if (tmpCol[i] == SnakeEvents.GROUND) {
                        this.grounded = true;
                    }
                 }
@@ -127,23 +129,41 @@ namespace Snake3D {
             let headPos: f.Vector3 = this.getHeadPosition().translation;
 
             if (collisionMap.has(headPos.toString())) {
-                let tmpCol: CollisionEvents[] = collisionMap.get(headPos.toString())._collisionEvents;
+                let tmpBlock: Block = collisionMap.get(headPos.toString());
 
-                for (let _i: number = 0; _i < tmpCol.length; _i++) {
-                    switch (tmpCol[_i]) {
-                        case CollisionEvents.FRUIT:
+                for (let _i: number = 0; _i < tmpBlock._collisionEvents.length; _i++) {
+                    switch (tmpBlock._collisionEvents[_i]) {
+                        case SnakeEvents.FRUIT:
+                            this.grow();
+                            //destroy the fruit after eating
+                            tmpBlock.getParent().removeChild(tmpBlock);
+                            collisionMap.delete(headPos.toString());
                             break;
-                        case CollisionEvents.WALL:
+                        case SnakeEvents.WALL:
                             break;
-                        case CollisionEvents.RAMP:
+                        case SnakeEvents.RAMP:
                             break;
                     }
                 }
             }
         }
 
-        // private grow(): void {
-            //add support for foodblocks in collisionMap first
-        // }
+        private grow(): void {
+            let node: f.Node = new f.Node("Segment");
+
+            let cmpMesh: f.ComponentMesh = new f.ComponentMesh(this.snakeMesh);
+            
+            node.addComponent(cmpMesh);
+            cmpMesh.pivot.scale(f.Vector3.ONE(0.8));
+
+            let cmpMaterial: f.ComponentMaterial = new f.ComponentMaterial(this.mtrSolidWhite);
+            node.addComponent(cmpMaterial);
+
+            let index: number = this.getChildren().length - 1;
+
+            node.addComponent(new f.ComponentTransform(this.getChildren()[index].mtxLocal));
+
+            this.appendChild(node);
+        }
     }
 }

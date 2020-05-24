@@ -1,6 +1,7 @@
 namespace Snake3D {
-    export enum CollisionEvents {
+    export enum SnakeEvents {
         FRUIT,
+        FRUITSPAWN,
         WALL,
         CLIMB,
         GROUND,

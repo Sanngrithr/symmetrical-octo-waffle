@@ -1,1 +1,1 @@
-{"version":3,"file":"Block.js","sourceRoot":"","sources":["Block.ts"],"names":[],"mappings":";AAAA,IAAU,OAAO,CAShB;AATD,WAAU,OAAO;IACb,IAAO,CAAC,GAAG,SAAS,CAAC;IACrB,MAAsB,KAAM,SAAQ,CAAC,CAAC,IAAI;KAMzC;IANqB,aAAK,QAM1B,CAAA;AACL,CAAC,EATS,OAAO,KAAP,OAAO,QAShB"}
+{"version":3,"file":"Block.js","sourceRoot":"","sources":["Block.ts"],"names":[],"mappings":";AAAA,IAAU,OAAO,CAOhB;AAPD,WAAU,OAAO;IACb,IAAO,CAAC,GAAG,SAAS,CAAC;IACrB,MAAsB,KAAM,SAAQ,CAAC,CAAC,IAAI;KAIzC;IAJqB,aAAK,QAI1B,CAAA;AACL,CAAC,EAPS,OAAO,KAAP,OAAO,QAOhB"}

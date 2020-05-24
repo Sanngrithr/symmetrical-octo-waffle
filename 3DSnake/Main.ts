@@ -8,7 +8,8 @@ namespace Snake3D {
     
     //seperate time for updating the snake to uncouple it from drawing updates
     let snakeTime: f.Time = new f.Time();
-    let collisionMap: Map<string, GroundBlock> = new Map<string, GroundBlock>();
+    let collisionMap: Map<string, Block> = new Map<string, Block>();
+    let blockarray: Array<GroundBlock> = [];
 
     //camera setup
     let cameraAnchor: f.Matrix4x4;
@@ -25,16 +26,18 @@ namespace Snake3D {
         //create some ground blocks
         for (let _i: number = -10; _i <= 10; _i++) {
             for (let _j: number = -10; _j <= 10; _j++) {
-                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -1, _j));
+                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -1, _j), true);
                 world.addChild(block);
+                blockarray.push(block);
                 collisionMap.set(block.cmpTransform.local.translation.toString(), block);
+
             }
         }
 
         //second, lower platform
         for (let _i: number = -5; _i <= 15; _i++) {
             for (let _j: number = -5; _j <= 15; _j++) {
-                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -6, _j));
+                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -6, _j), false);
                 world.addChild(block);
                 collisionMap.set(block.cmpTransform.local.translation.toString(), block);
             }
@@ -67,10 +70,11 @@ namespace Snake3D {
 
         //set the render loop
         f.Loop.addEventListener(f.EVENT.LOOP_FRAME, update);
-        f.Loop.start(f.LOOP_MODE.TIME_REAL, 30);
+        f.Loop.start(f.LOOP_MODE.TIME_REAL, 60);
 
         //set the snake update loop --> snake moves only 2 times per second
         snakeTime.setTimer(500, 0, snakeUpdate);
+        snakeTime.setTimer(5000, 0, spawnFruit);
     }
 
     function update(_event: f.Eventƒ): void {
@@ -82,6 +86,23 @@ namespace Snake3D {
     function snakeUpdate(_event: f.EventTimer): void {
         snake.move(collisionMap);
         snake.snakesDontFly(collisionMap);  
+    }
+
+    function spawnFruit(): void {
+        let continueLoop: boolean = true;
+        while (continueLoop) {
+            let rand: number = Math.random();
+            let index: number = Math.round(blockarray.length * rand) - 1;
+
+            if (blockarray[index]._collisionEvents.includes(SnakeEvents.FRUITSPAWN)) {
+                let fruit: FruitBlock = new FruitBlock(blockarray[index].mtxLocal.translation);
+                fruit.mtxLocal.translateY(1);
+                world.addChild(fruit);
+                collisionMap.set(fruit.mtxLocal.translation.toString(), fruit);
+                f.Debug.log("spawning fruit at " + fruit.mtxLocal.translation.toString());
+                continueLoop = false;
+            }
+        }
     }
 
     function control(_event: KeyboardEvent): void {

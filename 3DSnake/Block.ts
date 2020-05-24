@@ -3,8 +3,6 @@ namespace Snake3D {
     export abstract class Block extends f.Node {
 
         public position: f.Vector3;
-        public _collisionEvents: CollisionEvents[];
-
-        
+        public _collisionEvents: SnakeEvents[];
     }
 }
