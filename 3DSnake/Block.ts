@@ -4,5 +4,6 @@ namespace Snake3D {
 
         public position: f.Vector3;
         public _collisionEvents: SnakeEvents[];
+        public direction: f.Vector3;
     }
 }

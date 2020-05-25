@@ -6,9 +6,11 @@ var Snake3D;
         constructor() {
             super("Snake");
             this.isAlive = true;
+            this.score = 0;
             this.direction = f.Vector3.X(); //tells the snake in which direction it's going to move
             this.newDirection = this.direction; //for self-collision checking purposes; the snake can't invert itself
             this.grounded = true;
+            this.wasClimbing = false;
             this.snakeMesh = new f.MeshSphere(36, 36);
             this.mtrSolidWhite = new f.Material("SolidWhite", f.ShaderFlat, new f.CoatColored(f.Color.CSS("WHITE")));
             console.log("Creating Snake");
@@ -70,6 +72,9 @@ var Snake3D;
             let mtxHead = cmpPrev.local.copy;
             //lock in the new direction and move towards it
             this.direction = this.newDirection;
+            if (this.wasClimbing) {
+                this.setClimbingStatus(false, _collMap);
+            }
             //can't move in a direction unless grounded, cause snakes don't fly... for now
             if (this.grounded) {
                 mtxHead.translate(this.direction);
@@ -115,13 +120,21 @@ var Snake3D;
                             //destroy the fruit after eating
                             tmpBlock.getParent().removeChild(tmpBlock);
                             collisionMap.delete(headPos.toString());
-                            break;
-                        case Snake3D.SnakeEvents.WALL:
+                            this.setClimbingStatus(false, collisionMap);
                             break;
                         case Snake3D.SnakeEvents.RAMP:
+                            this.setClimbingStatus(true, collisionMap);
+                            //set key to remember last ramp for direction checks after leaving it
+                            this.lastRampPositionKey = tmpBlock.position.toString();
+                            break;
+                        case Snake3D.SnakeEvents.WALL:
+                            this.isAlive = false;
                             break;
                     }
                 }
+            }
+            else {
+                this.setClimbingStatus(false, collisionMap);
             }
         }
         grow() {
@@ -134,6 +147,32 @@ var Snake3D;
             let index = this.getChildren().length - 1;
             node.addComponent(new f.ComponentTransform(this.getChildren()[index].mtxLocal));
             this.appendChild(node);
+            this.score += 10;
+        }
+        setClimbingStatus(_bool, collisionMap) {
+            if (this.wasClimbing) {
+                if (!_bool) {
+                    this.leaveRamp(collisionMap.get(this.lastRampPositionKey));
+                    this.wasClimbing = _bool;
+                }
+            }
+            else {
+                if (_bool) {
+                    this.wasClimbing = _bool;
+                    this.climbRamp();
+                }
+            }
+        }
+        climbRamp() {
+            let cmpMeshHead = this.getChildren()[0].getComponent(f.ComponentMesh);
+            cmpMeshHead.pivot.translateY(0.5);
+        }
+        leaveRamp(_ramp) {
+            let cmpMeshHead = this.getChildren()[0].getComponent(f.ComponentMesh);
+            if (this.direction == _ramp.direction) {
+                this.getChildren()[0].mtxLocal.translateY(1);
+            }
+            cmpMeshHead.pivot.translateY(-0.5);
         }
     }
     Snake3D.Snake = Snake;

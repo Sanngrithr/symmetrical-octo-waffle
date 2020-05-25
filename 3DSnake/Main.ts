@@ -23,25 +23,26 @@ namespace Snake3D {
         snake = new Snake();
         world.addChild(snake);
 
-        //create some ground blocks
-        for (let _i: number = -10; _i <= 10; _i++) {
-            for (let _j: number = -10; _j <= 10; _j++) {
-                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -1, _j), true);
-                world.addChild(block);
-                blockarray.push(block);
-                collisionMap.set(block.cmpTransform.local.translation.toString(), block);
+        createPlatform(new f.Vector3(-10, -8, -9), 25, 20, true);
+        
+        createPlatform(new f.Vector3(5, -7, -9), 9, 4, true);
+        createPlatform(new f.Vector3(15, -7, -9), 5, 20, true);
+        createRamp(new f.Vector3(14, -7, 3), f.Vector3.Z(1), -90);
+        createRamp(new f.Vector3(14, -7, 4), f.Vector3.Z(1), -90);
+        createRamp(new f.Vector3(14, -7, 5), f.Vector3.Z(1), -90);
+        createRamp(new f.Vector3(14, -7, 6), f.Vector3.Z(1), -90);
+        createRamp(new f.Vector3(14, -7, 7), f.Vector3.Z(1), -90);
+        createRamp(new f.Vector3(14, -7, 8), f.Vector3.Z(1), -90);
+        createRamp(new f.Vector3(14, -7, 9), f.Vector3.Z(1), -90);
 
-            }
-        }
-
-        //second, lower platform
-        for (let _i: number = -5; _i <= 15; _i++) {
-            for (let _j: number = -5; _j <= 15; _j++) {
-                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, -6, _j), false);
-                world.addChild(block);
-                collisionMap.set(block.cmpTransform.local.translation.toString(), block);
-            }
-        }
+        createPlatform(new f.Vector3(9, -4, -2), 4, 8, true);
+        createRamp(new f.Vector3(6, -1, 3), f.Vector3.Z(-1), 90);
+        createRamp(new f.Vector3(6, -1, 4), f.Vector3.Z(-1), 90);
+        createRamp(new f.Vector3(7, -2, 3), f.Vector3.Z(-1), 90);
+        createRamp(new f.Vector3(7, -2, 4), f.Vector3.Z(-1), 90);
+        createRamp(new f.Vector3(8, -3, 3), f.Vector3.Z(-1), 90);
+        createRamp(new f.Vector3(8, -3, 4), f.Vector3.Z(-1), 90);
+        createPlatform(new f.Vector3(-5, -1, -5), 10, 10, true);
 
         //add ambient lightsource
         let mainLight: f.LightAmbient = new f.LightAmbient(new f.Color(0.4, 0.4, 0.4, 1));
@@ -84,6 +85,10 @@ namespace Snake3D {
     }
 
     function snakeUpdate(_event: f.EventTimer): void {
+        if (!snake.isAlive) {
+            snakeTime.getTimer(0).clear();
+            return;
+        }
         snake.move(collisionMap);
         snake.snakesDontFly(collisionMap);  
     }
@@ -99,7 +104,6 @@ namespace Snake3D {
                 fruit.mtxLocal.translateY(1);
                 world.addChild(fruit);
                 collisionMap.set(fruit.mtxLocal.translation.toString(), fruit);
-                f.Debug.log("spawning fruit at " + fruit.mtxLocal.translation.toString());
                 continueLoop = false;
             }
         }
@@ -136,6 +140,45 @@ namespace Snake3D {
         }
 
         return result;
+    }
+
+    function createPlatform(_startPosition: f.Vector3, _width: number, _length: number, _isFruitSpawn: boolean): void {
+        
+        let blackMat: f.Material = new f.Material("BlackBlock", f.ShaderFlat, new f.CoatColored(new f.Color(0.2, 0.2, 0.2, 1)));
+        let whiteMat: f.Material = new f.Material("WhiteBlock", f.ShaderFlat, new f.CoatColored(new f.Color(0.8, 0.8, 0.8, 1)));
+
+        let currentColor: f.Material = whiteMat;
+
+        let minX: number = _startPosition.x;
+        let maxX: number = _startPosition.x + _width;
+        let minZ: number = _startPosition.z;
+        let maxZ: number = _startPosition.z + _length;
+        
+        for (let _i: number = minX; _i <= maxX; _i++) {
+            for (let _j: number = minZ; _j <= maxZ; _j++) {
+
+                if (currentColor == blackMat) {
+                    currentColor = whiteMat;
+                } else {
+                    currentColor = blackMat;
+                }
+
+                let block: GroundBlock = new GroundBlock(new f.Vector3(_i, _startPosition.y, _j), _isFruitSpawn, currentColor);
+                world.addChild(block);
+                collisionMap.set(block.cmpTransform.local.translation.toString(), block);
+                
+                if (_isFruitSpawn) {
+                    blockarray.push(block);
+                }
+            }
+        }
+    }
+
+    function createRamp(_position: f.Vector3, _direction: f.Vector3, _rotation: number): void {
+        let ramp: RampBlock = new RampBlock(_position, _direction);
+        ramp.mtxLocal.rotateY(_rotation);
+        world.addChild(ramp);
+        collisionMap.set(ramp.mtxLocal.translation.toString(), ramp);
     }
 
 
