@@ -18,24 +18,37 @@ var Snake3D;
         f.Debug.log(canvas);
         snake = new Snake3D.Snake();
         world.addChild(snake);
-        createPlatform(new f.Vector3(-10, -8, -9), 25, 20, true);
-        createPlatform(new f.Vector3(5, -7, -9), 9, 4, true);
-        createPlatform(new f.Vector3(15, -7, -9), 5, 20, true);
-        createRamp(new f.Vector3(14, -7, 3), f.Vector3.Z(1), -90);
-        createRamp(new f.Vector3(14, -7, 4), f.Vector3.Z(1), -90);
-        createRamp(new f.Vector3(14, -7, 5), f.Vector3.Z(1), -90);
-        createRamp(new f.Vector3(14, -7, 6), f.Vector3.Z(1), -90);
-        createRamp(new f.Vector3(14, -7, 7), f.Vector3.Z(1), -90);
-        createRamp(new f.Vector3(14, -7, 8), f.Vector3.Z(1), -90);
-        createRamp(new f.Vector3(14, -7, 9), f.Vector3.Z(1), -90);
+        //base bottom platform
+        createPlatform(new f.Vector3(-10, -8, -10), 25, 20, true);
+        //bottom platform part2
+        createPlatform(new f.Vector3(5, -7, -10), 9, 4, true);
+        createPlatform(new f.Vector3(15, -7, -10), 5, 20, true);
+        //ramps bottom p1-p2
+        createRamp(new f.Vector3(14, -7, 3), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(14, -7, 4), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(14, -7, 5), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(14, -7, 6), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(14, -7, 7), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(14, -7, 8), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(14, -7, 9), f.Vector3.X(1), -90);
+        //middle platform
         createPlatform(new f.Vector3(9, -4, -2), 4, 8, true);
-        createRamp(new f.Vector3(6, -1, 3), f.Vector3.Z(-1), 90);
-        createRamp(new f.Vector3(6, -1, 4), f.Vector3.Z(-1), 90);
-        createRamp(new f.Vector3(7, -2, 3), f.Vector3.Z(-1), 90);
-        createRamp(new f.Vector3(7, -2, 4), f.Vector3.Z(-1), 90);
-        createRamp(new f.Vector3(8, -3, 3), f.Vector3.Z(-1), 90);
-        createRamp(new f.Vector3(8, -3, 4), f.Vector3.Z(-1), 90);
+        //ramps middle-bottom        
+        createRamp(new f.Vector3(10, -4, -3), f.Vector3.Z(1), 180);
+        createRamp(new f.Vector3(11, -4, -3), f.Vector3.Z(1), 180);
+        createRamp(new f.Vector3(10, -5, -4), f.Vector3.Z(1), 180);
+        createRamp(new f.Vector3(11, -5, -4), f.Vector3.Z(1), 180);
+        createRamp(new f.Vector3(10, -6, -5), f.Vector3.Z(1), 180);
+        createRamp(new f.Vector3(11, -6, -5), f.Vector3.Z(1), 180);
+        //upmost platform
         createPlatform(new f.Vector3(-5, -1, -5), 10, 10, true);
+        //ramps top-middle
+        createRamp(new f.Vector3(6, -1, 3), f.Vector3.X(-1), 90);
+        createRamp(new f.Vector3(6, -1, 4), f.Vector3.X(-1), 90);
+        createRamp(new f.Vector3(7, -2, 3), f.Vector3.X(-1), 90);
+        createRamp(new f.Vector3(7, -2, 4), f.Vector3.X(-1), 90);
+        createRamp(new f.Vector3(8, -3, 3), f.Vector3.X(-1), 90);
+        createRamp(new f.Vector3(8, -3, 4), f.Vector3.X(-1), 90);
         //add ambient lightsource
         let mainLight = new f.LightAmbient(new f.Color(0.4, 0.4, 0.4, 1));
         let cmpLight = new f.ComponentLight(mainLight);
@@ -68,12 +81,8 @@ var Snake3D;
         //lerp the camera position in the draw update towards the snake head
     }
     function snakeUpdate(_event) {
-        if (!snake.isAlive) {
-            snakeTime.getTimer(0).clear();
-            return;
-        }
         snake.move(collisionMap);
-        snake.snakesDontFly(collisionMap);
+        //snake.snakesDontFly(collisionMap);  
     }
     function spawnFruit() {
         let continueLoop = true;
@@ -84,7 +93,7 @@ var Snake3D;
                 let fruit = new Snake3D.FruitBlock(blockarray[index].mtxLocal.translation);
                 fruit.mtxLocal.translateY(1);
                 world.addChild(fruit);
-                collisionMap.set(fruit.mtxLocal.translation.toString(), fruit);
+                collisionMap.set(fruit.mtxLocal.translation.toString(), fruit._collisionEvents);
                 continueLoop = false;
             }
         }
@@ -104,7 +113,7 @@ var Snake3D;
     function controlCamera() {
         cameraAnchor = snake.getHeadPosition();
         cameraAnchor.translate(anchorTransformation);
-        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchor.translation, 0.05);
+        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchor.translation, 0.03);
     }
     function lerp(_from, _to, _percent) {
         let result = f.Vector3.ZERO();
@@ -116,6 +125,7 @@ var Snake3D;
         }
         return result;
     }
+    //Creates a chequerboard pattern as long as _length is an uneven integer
     function createPlatform(_startPosition, _width, _length, _isFruitSpawn) {
         let blackMat = new f.Material("BlackBlock", f.ShaderFlat, new f.CoatColored(new f.Color(0.2, 0.2, 0.2, 1)));
         let whiteMat = new f.Material("WhiteBlock", f.ShaderFlat, new f.CoatColored(new f.Color(0.8, 0.8, 0.8, 1)));
@@ -134,7 +144,7 @@ var Snake3D;
                 }
                 let block = new Snake3D.GroundBlock(new f.Vector3(_i, _startPosition.y, _j), _isFruitSpawn, currentColor);
                 world.addChild(block);
-                collisionMap.set(block.cmpTransform.local.translation.toString(), block);
+                collisionMap.set(block.cmpTransform.local.translation.toString(), block._collisionEvents);
                 if (_isFruitSpawn) {
                     blockarray.push(block);
                 }
@@ -143,9 +153,18 @@ var Snake3D;
     }
     function createRamp(_position, _direction, _rotation) {
         let ramp = new Snake3D.RampBlock(_position, _direction);
+        let tmpGround = ramp.mtxLocal.copy;
+        let elevator = ramp.mtxLocal.copy;
+        let pusher = ramp.mtxLocal.copy;
         ramp.mtxLocal.rotateY(_rotation);
         world.addChild(ramp);
-        collisionMap.set(ramp.mtxLocal.translation.toString(), ramp);
+        collisionMap.set(ramp.mtxLocal.translation.toString(), ramp._collisionEvents);
+        tmpGround.translateY(-1);
+        pusher.translateY(1);
+        elevator.translate(ramp.direction);
+        collisionMap.set(elevator.translation.toString(), [Snake3D.SnakeEvents.ELEVATOR, Snake3D.SnakeEvents.GROUND]);
+        collisionMap.set(tmpGround.translation.toString(), [Snake3D.SnakeEvents.GROUND]);
+        collisionMap.set(pusher.translation.toString(), [Snake3D.SnakeEvents.PUSHDOWN]);
     }
 })(Snake3D || (Snake3D = {}));
 //# sourceMappingURL=Main.js.map

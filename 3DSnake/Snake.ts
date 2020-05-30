@@ -1,16 +1,23 @@
 namespace Snake3D {
     import f = FudgeCore;
+    
+    export enum SnakeState {
+        GROUNDED,
+        CLIMBING,
+        FALLING,
+        FLYING,
+        RAMPING
+    }
+
     export class Snake extends f.Node {
 
         public isAlive: boolean = true;
         public score: number = 0;
+        public state: SnakeState = SnakeState.GROUNDED;
 
 
         public direction: f.Vector3 = f.Vector3.X(); //tells the snake in which direction it's going to move
         private newDirection: f.Vector3 = this.direction; //for self-collision checking purposes; the snake can't invert itself
-        private grounded: boolean = true;
-        private wasClimbing: boolean = false;
-        private lastRampPositionKey: string;
 
         private snakeMesh: f.MeshSphere = new f.MeshSphere(36, 36);
         private mtrSolidWhite: f.Material = new f.Material("SolidWhite", f.ShaderFlat, new f.CoatColored(f.Color.CSS("WHITE")));
@@ -61,22 +68,113 @@ namespace Snake3D {
             return headTransform.local.copy;
         }
 
-        //ground the snake if possible
-        public snakesDontFly(_collisionMap: Map<string, GroundBlock>): void {
-            let tmpHead: f.Matrix4x4 = this.getHeadPosition();
-            this.grounded = false;
+        // //ground the snake if possible
+        // public snakesDontFly(_collisionMap: Map<string, GroundBlock>): void {
+        //     let tmpHead: f.Matrix4x4 = this.getHeadPosition();
+        //     this.grounded = false;
 
-            if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
-                let tmpCol: SnakeEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
-                for (let i: number = 0; i < tmpCol.length; i++) {
-                   if (tmpCol[i] == SnakeEvents.GROUND) {
-                       this.grounded = true;
-                   }
+        //     if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
+        //         let tmpCol: SnakeEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
+        //         for (let i: number = 0; i < tmpCol.length; i++) {
+        //            if (tmpCol[i] == SnakeEvents.GROUND) {
+        //                this.grounded = true;
+        //            }
+        //         }
+        //     }
+        // }
+        
+        public move(_collMap: Map<string, SnakeEvents[]>): void {
+            
+            this.setSnakeState(_collMap);     
+
+            switch (this.state) {
+                case SnakeState.GROUNDED:
+                    this.moveHead();
+                    break;
+                case SnakeState.CLIMBING:
+                    this.getChildren()[0].cmpTransform.local.translateY(1);
+                    break;
+                case SnakeState.RAMPING:
+                    this.moveHead();                  
+                    break;
+                case SnakeState.FLYING:
+                    break;
+                case SnakeState.FALLING:
+                    this.dragTail(this.getHeadPosition());
+                    this.getChildren()[0].cmpTransform.local.translateY(-1);
+                    break;
+                default:
+                    f.Debug.log("Something broke in move(), we shouldn't be in here. Did I forget to implement a State?");
+                    break;
+            }
+      
+            this.checkCollision(_collMap);
+
+        }
+
+        private checkCollision(collisionMap: Map<string, SnakeEvents[]>): void {
+            let headPos: f.Vector3 = this.getHeadPosition().translation;
+
+            if (collisionMap.has(headPos.toString())) {
+                let tmpBlock: SnakeEvents[] = collisionMap.get(headPos.toString());
+
+                if (tmpBlock == null || tmpBlock == undefined) {
+                    return;
+                }
+
+                for (let _i: number = 0; _i < tmpBlock.length; _i++) {
+                    switch (tmpBlock[_i]) {
+                        case SnakeEvents.FRUIT:
+                            this.grow();
+                            //destroy the fruit after eating
+                            //tmpBlock.getParent().removeChild(tmpBlock);
+                            collisionMap.delete(headPos.toString());
+                            break;
+                        case SnakeEvents.RAMP:
+                            //this.getChildren()[0].mtxLocal.translateY(0.7);
+                            this.state = SnakeState.RAMPING;
+                            break;
+                        case SnakeEvents.WALL:
+                            this.isAlive = false;
+                            break;
+                        case SnakeEvents.ELEVATOR:
+                            this.getChildren()[0].mtxLocal.translateY(1);
+                            break;
+                        case SnakeEvents.PUSHDOWN:
+                            this.getChildren()[0].mtxLocal.translateY(-1);
+                            break;
+                    }
                 }
             }
         }
-        
-        public move(_collMap: Map<string, GroundBlock>): void {
+
+        private setSnakeState(_collisionMap: Map<string, SnakeEvents[]>): void {
+            let tmpHead: f.Matrix4x4 = this.getHeadPosition();
+
+            if (this.state == SnakeState.RAMPING) {
+                //tmpHead.translateY(-0.7);
+            }
+
+            if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
+                let tmpCol: SnakeEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString());
+
+                if (tmpCol == null || tmpCol == undefined) {
+                    return;
+                }
+
+                for (let i: number = 0; i < tmpCol.length; i++) {
+                   if (tmpCol[i] == SnakeEvents.GROUND) {
+                       this.state = SnakeState.GROUNDED;
+                   }
+                }
+            }
+            else {
+                this.state = SnakeState.FALLING;
+            }
+        }
+
+
+        private moveHead(): void {
             //find the transform of the snake head
             let headNode: f.Node = this.getChildren()[0];
             let cmpPrev: f.ComponentTransform = headNode.getComponent(f.ComponentTransform);
@@ -84,26 +182,17 @@ namespace Snake3D {
 
             //lock in the new direction and move towards it
             this.direction = this.newDirection;
-            if (this.wasClimbing) {
-                this.setClimbingStatus(false, _collMap);
-            }
-            //can't move in a direction unless grounded, cause snakes don't fly... for now
-            if (this.grounded) {     
-                mtxHead.translate(this.direction);
-            }
-            else {
-                mtxHead.translateY(-1);
-            }
-
-            let cmpNew: f.ComponentTransform = new f.ComponentTransform(mtxHead);
-
-            //after moving the head, check if you have collided with something and handle it
-            //this is the best time to create a new segment after growing
-            this.checkCollision(_collMap);
-            
+            mtxHead.translate(this.direction);
             //now that the snake knows where it's going, move the rest of it
+            this.dragTail(mtxHead);
+        }
+
+
+        private dragTail(_newHeadPosition: f.Matrix4x4): void {
+            let cmpNew: f.ComponentTransform = new f.ComponentTransform(_newHeadPosition);
+            
             for (let segment of this.getChildren()) {
-                cmpPrev = segment.getComponent(f.ComponentTransform);
+                let cmpPrev: f.ComponentTransform = segment.getComponent(f.ComponentTransform);
                 segment.removeComponent(cmpPrev);
                 segment.addComponent(cmpNew);
                 cmpNew = cmpPrev;
@@ -132,36 +221,6 @@ namespace Snake3D {
             }
         }
         
-        private checkCollision(collisionMap: Map<string, GroundBlock>): void {
-            let headPos: f.Vector3 = this.getHeadPosition().translation;
-
-            if (collisionMap.has(headPos.toString())) {
-                let tmpBlock: Block = collisionMap.get(headPos.toString());
-
-                for (let _i: number = 0; _i < tmpBlock._collisionEvents.length; _i++) {
-                    switch (tmpBlock._collisionEvents[_i]) {
-                        case SnakeEvents.FRUIT:
-                            this.grow();
-                            //destroy the fruit after eating
-                            tmpBlock.getParent().removeChild(tmpBlock);
-                            collisionMap.delete(headPos.toString());
-                            this.setClimbingStatus(false, collisionMap);
-                            break;
-                        case SnakeEvents.RAMP:
-                            this.setClimbingStatus(true, collisionMap);
-                            //set key to remember last ramp for direction checks after leaving it
-                            this.lastRampPositionKey = tmpBlock.position.toString();
-                            break;
-                        case SnakeEvents.WALL:
-                            this.isAlive = false;
-                            break;
-                    }
-                }
-            } else {
-                this.setClimbingStatus(false, collisionMap);
-            }
-        }
-
         private grow(): void {
             let node: f.Node = new f.Node("Segment");
 
@@ -177,35 +236,6 @@ namespace Snake3D {
             this.appendChild(node);
 
             this.score += 10;
-        }
-
-        private setClimbingStatus(_bool: boolean, collisionMap: Map<string, GroundBlock>): void {
-            if (this.wasClimbing) {
-                if (!_bool) {
-                    this.leaveRamp(collisionMap.get(this.lastRampPositionKey));
-                    this.wasClimbing = _bool;
-                }
-            } else {
-                if (_bool) {
-                    this.wasClimbing = _bool;
-                    this.climbRamp();
-                }
-            }
-        }
-
-        private climbRamp(): void {
-            let cmpMeshHead: f.ComponentMesh = this.getChildren()[0].getComponent<f.ComponentMesh>(f.ComponentMesh);
-            cmpMeshHead.pivot.translateY(0.5);
-        }
-
-        private leaveRamp(_ramp: RampBlock): void {
-            let cmpMeshHead: f.ComponentMesh = this.getChildren()[0].getComponent<f.ComponentMesh>(f.ComponentMesh);
-            
-            if (this.direction == _ramp.direction) {
-                this.getChildren()[0].mtxLocal.translateY(1);
-            }
-            
-            cmpMeshHead.pivot.translateY(-0.5);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Snake3D {
 
             //maybe define the resources in a builder superclass that manages building the levels
             let mesh: MeshRamp = new MeshRamp();
-            let mat: f.Material = new f.Material("GREEN", f.ShaderFlat, new f.CoatColored(new f.Color(0.1, 0.8, 0.2, 1)));
+            let mat: f.Material = new f.Material("GREEN", f.ShaderFlat, new f.CoatColored(new f.Color(0.1, 0.6, 0.2, 1)));
 
             //add mesh and material to the node
             let cmpMesh: f.ComponentMesh = new f.ComponentMesh(mesh);
@@ -23,9 +23,10 @@ namespace Snake3D {
             this.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(_position)));
             
             this.position = _position;
-            this._collisionEvents = [SnakeEvents.RAMP, SnakeEvents.GROUND];
+            this._collisionEvents = [SnakeEvents.RAMP];
             this.direction = _direction;
-            
+
+            //help blocks for correct snake movement behaviour
         }
     }
 }

@@ -5,6 +5,8 @@ namespace Snake3D {
         WALL,
         CLIMB,
         GROUND,
-        RAMP
+        RAMP,
+        ELEVATOR,
+        PUSHDOWN
     }
 }

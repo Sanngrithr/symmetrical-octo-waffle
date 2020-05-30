@@ -8,7 +8,7 @@ var Snake3D;
             console.log("Creating Ground");
             //maybe define the resources in a builder superclass that manages building the levels
             let mesh = new Snake3D.MeshRamp();
-            let mat = new f.Material("GREEN", f.ShaderFlat, new f.CoatColored(new f.Color(0.1, 0.8, 0.2, 1)));
+            let mat = new f.Material("GREEN", f.ShaderFlat, new f.CoatColored(new f.Color(0.1, 0.6, 0.2, 1)));
             //add mesh and material to the node
             let cmpMesh = new f.ComponentMesh(mesh);
             let cmpMat = new f.ComponentMaterial(mat);
@@ -16,8 +16,9 @@ var Snake3D;
             this.addComponent(cmpMat);
             this.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(_position)));
             this.position = _position;
-            this._collisionEvents = [Snake3D.SnakeEvents.RAMP, Snake3D.SnakeEvents.GROUND];
+            this._collisionEvents = [Snake3D.SnakeEvents.RAMP];
             this.direction = _direction;
+            //help blocks for correct snake movement behaviour
         }
     }
     Snake3D.RampBlock = RampBlock;

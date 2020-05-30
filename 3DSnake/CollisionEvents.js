@@ -9,6 +9,8 @@ var Snake3D;
         SnakeEvents[SnakeEvents["CLIMB"] = 3] = "CLIMB";
         SnakeEvents[SnakeEvents["GROUND"] = 4] = "GROUND";
         SnakeEvents[SnakeEvents["RAMP"] = 5] = "RAMP";
+        SnakeEvents[SnakeEvents["ELEVATOR"] = 6] = "ELEVATOR";
+        SnakeEvents[SnakeEvents["PUSHDOWN"] = 7] = "PUSHDOWN";
     })(SnakeEvents = Snake3D.SnakeEvents || (Snake3D.SnakeEvents = {}));
 })(Snake3D || (Snake3D = {}));
 //# sourceMappingURL=CollisionEvents.js.map

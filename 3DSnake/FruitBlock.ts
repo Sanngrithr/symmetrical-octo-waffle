@@ -22,8 +22,6 @@ namespace Snake3D {
 
             this.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(_position)));
 
-            
-
             this._collisionEvents = [SnakeEvents.FRUIT];
         }
     }
