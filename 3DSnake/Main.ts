@@ -114,7 +114,9 @@ namespace Snake3D {
     }
 
     function snakeUpdate(_event: f.EventTimer): void {
-        snake.move(collisionMap, fruitMap);
+        if (snake.isAlive) {   
+            snake.move(collisionMap, fruitMap);
+        }
         cameraAnchorNear.mtxLocal.translation = snake.getHeadPosition().translation;
         //tmpHeadPosition = snake.getHeadPosition().translation;
     }

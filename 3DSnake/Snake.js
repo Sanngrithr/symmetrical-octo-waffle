@@ -9,6 +9,7 @@ var Snake3D;
         SnakeState[SnakeState["FALLING"] = 2] = "FALLING";
         SnakeState[SnakeState["FLYING"] = 3] = "FLYING";
         SnakeState[SnakeState["RAMPING"] = 4] = "RAMPING";
+        SnakeState[SnakeState["DEAD"] = 5] = "DEAD";
     })(SnakeState = Snake3D.SnakeState || (Snake3D.SnakeState = {}));
     class Snake extends f.Node {
         constructor() {
@@ -66,18 +67,18 @@ var Snake3D;
             this.setSnakeState(_collMap);
             switch (this.state) {
                 case SnakeState.GROUNDED:
-                    this.moveHead();
+                    this.moveHead(_collMap);
                     break;
                 case SnakeState.CLIMBING:
                     this.getChildren()[0].cmpTransform.local.translateY(1);
                     break;
                 case SnakeState.RAMPING:
-                    this.moveHead();
+                    this.moveHead(_collMap);
                     break;
                 case SnakeState.FLYING:
                     break;
                 case SnakeState.FALLING:
-                    this.dragTail(this.getHeadPosition());
+                    this.dragTail(this.getHeadPosition(), _collMap);
                     this.getChildren()[0].cmpTransform.local.translateY(-1);
                     break;
                 default:
@@ -140,7 +141,7 @@ var Snake3D;
                 this.state = SnakeState.FALLING;
             }
         }
-        moveHead() {
+        moveHead(_collMap) {
             //find the transform of the snake head
             let headNode = this.getChildren()[0];
             let cmpPrev = headNode.getComponent(f.ComponentTransform);
@@ -149,9 +150,9 @@ var Snake3D;
             this.direction = this.newDirection;
             mtxHead.translate(this.direction);
             //now that the snake knows where it's going, move the rest of it
-            this.dragTail(mtxHead);
+            this.dragTail(mtxHead, _collMap);
         }
-        dragTail(_newHeadPosition) {
+        dragTail(_newHeadPosition, _collMap) {
             let cmpNew = new f.ComponentTransform(_newHeadPosition);
             for (let segment of this.getChildren()) {
                 let cmpPrev = segment.getComponent(f.ComponentTransform);
@@ -160,9 +161,6 @@ var Snake3D;
                 cmpNew = cmpPrev;
             }
         }
-        // private updateSnakeColliders(_collMap: Map<string, GroundBlock>) {
-        //collisionmap only accepts groundblock atm, maybe extend it to node or a block superclass?
-        // }
         createSegments(_segments) {
             for (let i = 0; i < _segments; i++) {
                 let node = new f.Node("Segment");

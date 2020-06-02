@@ -48,7 +48,7 @@ namespace Snake3D {
           // left tri
           0, 4, 1,
           // bottom
-          1 + 6, 4 + 6, 5 + 6, 1 + 6, 5 + 6, 2 + 6
+          1 + 6, 4 , 5 , 2 + 6, 1 + 6, 5
         ]);
         return indices;
       }

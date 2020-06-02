@@ -92,7 +92,9 @@ var Snake3D;
         //lerp the camera position in the draw update towards the snake head
     }
     function snakeUpdate(_event) {
-        snake.move(collisionMap, fruitMap);
+        if (snake.isAlive) {
+            snake.move(collisionMap, fruitMap);
+        }
         cameraAnchorNear.mtxLocal.translation = snake.getHeadPosition().translation;
         //tmpHeadPosition = snake.getHeadPosition().translation;
     }
