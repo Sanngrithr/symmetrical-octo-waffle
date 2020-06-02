@@ -35,6 +35,11 @@ var Snake3D;
         createRamp(new f.Vector3(14, -7, 7), f.Vector3.X(1), -90);
         createRamp(new f.Vector3(14, -7, 8), f.Vector3.X(1), -90);
         createRamp(new f.Vector3(14, -7, 9), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(4, -7, -10), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(4, -7, -9), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(4, -7, -8), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(4, -7, -7), f.Vector3.X(1), -90);
+        createRamp(new f.Vector3(4, -7, -6), f.Vector3.X(1), -90);
         //middle platform
         createPlatform(new f.Vector3(9, -4, -2), 4, 8, true);
         //ramps middle-bottom        

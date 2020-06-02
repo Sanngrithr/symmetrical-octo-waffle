@@ -42,7 +42,7 @@ var Snake3D;
                 // left tri
                 0, 4, 1,
                 // bottom
-                1 + 6, 4, 5, 2 + 6, 1 + 6, 5
+                5, 4, 1, 5, 2, 1
             ]);
             return indices;
         }
