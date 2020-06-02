@@ -54,25 +54,15 @@ var Snake3D;
                 this.newDirection = newDir;
             }
         }
+        resetDirection() {
+            this.newDirection = this.direction;
+        }
         getHeadPosition() {
             let headNode = this.getChildren()[0];
             let headTransform = headNode.getComponent(f.ComponentTransform);
             return headTransform.local.copy;
         }
-        // //ground the snake if possible
-        // public snakesDontFly(_collisionMap: Map<string, GroundBlock>): void {
-        //     let tmpHead: f.Matrix4x4 = this.getHeadPosition();
-        //     this.grounded = false;
-        //     if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
-        //         let tmpCol: SnakeEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
-        //         for (let i: number = 0; i < tmpCol.length; i++) {
-        //            if (tmpCol[i] == SnakeEvents.GROUND) {
-        //                this.grounded = true;
-        //            }
-        //         }
-        //     }
-        // }
-        move(_collMap) {
+        move(_collMap, _fruitMap) {
             this.setSnakeState(_collMap);
             switch (this.state) {
                 case SnakeState.GROUNDED:
@@ -94,9 +84,9 @@ var Snake3D;
                     f.Debug.log("Something broke in move(), we shouldn't be in here. Did I forget to implement a State?");
                     break;
             }
-            this.checkCollision(_collMap);
+            this.checkCollision(_collMap, _fruitMap);
         }
-        checkCollision(collisionMap) {
+        checkCollision(collisionMap, fruitMap) {
             let headPos = this.getHeadPosition().translation;
             if (collisionMap.has(headPos.toString())) {
                 let tmpBlock = collisionMap.get(headPos.toString());
@@ -108,8 +98,9 @@ var Snake3D;
                         case Snake3D.SnakeEvents.FRUIT:
                             this.grow();
                             //destroy the fruit after eating
-                            //tmpBlock.getParent().removeChild(tmpBlock);
-                            collisionMap.delete(headPos.toString());
+                            let fruit = fruitMap.get(headPos.toString());
+                            fruit.getParent().removeChild(fruit);
+                            fruitMap.delete(headPos.toString());
                             break;
                         case Snake3D.SnakeEvents.RAMP:
                             //this.getChildren()[0].mtxLocal.translateY(0.7);
@@ -130,9 +121,10 @@ var Snake3D;
         }
         setSnakeState(_collisionMap) {
             let tmpHead = this.getHeadPosition();
-            if (this.state == SnakeState.RAMPING) {
-                //tmpHead.translateY(-0.7);
-            }
+            // if (this.state == SnakeState.RAMPING) {
+            //     tmpHead.translateY(-0.7);
+            //     tmpHead.translation.y = Math.round(tmpHead.translation.y);
+            // }
             if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
                 let tmpCol = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString());
                 if (tmpCol == null || tmpCol == undefined) {

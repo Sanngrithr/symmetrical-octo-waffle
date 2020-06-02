@@ -62,28 +62,17 @@ namespace Snake3D {
             }
         }
 
+        public resetDirection(): void {
+            this.newDirection = this.direction;
+        }
+
         public getHeadPosition(): f.Matrix4x4 {
             let headNode: f.Node = this.getChildren()[0];
             let headTransform: f.ComponentTransform = headNode.getComponent(f.ComponentTransform);
             return headTransform.local.copy;
         }
-
-        // //ground the snake if possible
-        // public snakesDontFly(_collisionMap: Map<string, GroundBlock>): void {
-        //     let tmpHead: f.Matrix4x4 = this.getHeadPosition();
-        //     this.grounded = false;
-
-        //     if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
-        //         let tmpCol: SnakeEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())._collisionEvents;
-        //         for (let i: number = 0; i < tmpCol.length; i++) {
-        //            if (tmpCol[i] == SnakeEvents.GROUND) {
-        //                this.grounded = true;
-        //            }
-        //         }
-        //     }
-        // }
         
-        public move(_collMap: Map<string, SnakeEvents[]>): void {
+        public move(_collMap: Map<string, SnakeEvents[]>, _fruitMap: Map<string, FruitBlock>): void {
             
             this.setSnakeState(_collMap);     
 
@@ -108,11 +97,11 @@ namespace Snake3D {
                     break;
             }
       
-            this.checkCollision(_collMap);
+            this.checkCollision(_collMap, _fruitMap);
 
         }
 
-        private checkCollision(collisionMap: Map<string, SnakeEvents[]>): void {
+        private checkCollision(collisionMap: Map<string, SnakeEvents[]>, fruitMap: Map<string, FruitBlock>): void {
             let headPos: f.Vector3 = this.getHeadPosition().translation;
 
             if (collisionMap.has(headPos.toString())) {
@@ -127,8 +116,9 @@ namespace Snake3D {
                         case SnakeEvents.FRUIT:
                             this.grow();
                             //destroy the fruit after eating
-                            //tmpBlock.getParent().removeChild(tmpBlock);
-                            collisionMap.delete(headPos.toString());
+                            let fruit: FruitBlock = fruitMap.get(headPos.toString());
+                            fruit.getParent().removeChild(fruit);
+                            fruitMap.delete(headPos.toString());
                             break;
                         case SnakeEvents.RAMP:
                             //this.getChildren()[0].mtxLocal.translateY(0.7);
@@ -151,9 +141,10 @@ namespace Snake3D {
         private setSnakeState(_collisionMap: Map<string, SnakeEvents[]>): void {
             let tmpHead: f.Matrix4x4 = this.getHeadPosition();
 
-            if (this.state == SnakeState.RAMPING) {
-                //tmpHead.translateY(-0.7);
-            }
+            // if (this.state == SnakeState.RAMPING) {
+            //     tmpHead.translateY(-0.7);
+            //     tmpHead.translation.y = Math.round(tmpHead.translation.y);
+            // }
 
             if (_collisionMap.has(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString())) {
                 let tmpCol: SnakeEvents[] = _collisionMap.get(new f.Vector3(tmpHead.translation.x, tmpHead.translation.y - 1, tmpHead.translation.z).toString());

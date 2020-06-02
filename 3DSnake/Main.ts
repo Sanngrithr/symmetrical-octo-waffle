@@ -5,16 +5,20 @@ namespace Snake3D {
     export let viewport: f.Viewport;
     let snake: Snake;
     let world: f.Node = new f.Node("World");
-    
+
     //seperate time for updating the snake to uncouple it from drawing updates
     let snakeTime: f.Time = new f.Time();
+    let fruitTime: f.Time = new f.Time();
     let collisionMap: Map<string, SnakeEvents[]> = new Map<string, SnakeEvents[]>();
     let blockarray: Array<GroundBlock> = [];
+    let fruitMap: Map<string, FruitBlock> = new Map<string, FruitBlock>();
 
     //camera setup
-    let cameraAnchor: f.Matrix4x4;
+    let cameraAnchorNear: f.Node;
+    let cameraAnchorFar: f.Node;
     let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
-    let anchorTransformation: f.Vector3 = new f.Vector3(0, 15, 20);
+    let anchorTransformation: f.Vector3 = new f.Vector3(0, 7, 25);
+    let tmpHeadPosition: f.Vector3;
 
     function hndLoad(_event: Event): void {
         const canvas: HTMLCanvasElement = document.querySelector("canvas");
@@ -37,7 +41,6 @@ namespace Snake3D {
         createRamp(new f.Vector3(14, -7, 7), f.Vector3.X(1), -90);
         createRamp(new f.Vector3(14, -7, 8), f.Vector3.X(1), -90);
         createRamp(new f.Vector3(14, -7, 9), f.Vector3.X(1), -90);
-
         
         //middle platform
         createPlatform(new f.Vector3(9, -4, -2), 4, 8, true);
@@ -73,18 +76,27 @@ namespace Snake3D {
         cmpDirLight.pivot.rotateY(-160);
         world.addComponent(cmpDirLight);
 
-        //set up initial camera rotation
-        cmpCamera.pivot.translate(anchorTransformation);
-        cameraAnchor = snake.getHeadPosition();
-        cmpCamera.pivot.rotateY(180);
-        cmpCamera.pivot.rotateX(40);
 
+        //set up camera logic
+        cameraAnchorNear = new f.Node("Camera Anchor 1");
+        cameraAnchorNear.addComponent(new f.ComponentTransform(snake.getChildren()[0].mtxLocal.copy));
+        snake.getChildren()[0].addChild(cameraAnchorNear);
+
+        cameraAnchorFar = new f.Node("Camera Anchor 2");
+        cameraAnchorFar.addComponent(new f.ComponentTransform(snake.getChildren()[0].mtxLocal.copy));
+        cameraAnchorFar.cmpTransform.local.translate(anchorTransformation);
+        cameraAnchorNear.addChild(cameraAnchorFar);
+
+        cmpCamera.pivot.translation = cameraAnchorFar.mtxLocal.translation;
+        cmpCamera.pivot.lookAt(snake.getHeadPosition().translation, f.Vector3.Y());
+        tmpHeadPosition = snake.getHeadPosition().translation;
 
         viewport = new f.Viewport();
         viewport.initialize("Viewport", world, cmpCamera, canvas);
 
         //keyboard input-handling
         document.addEventListener("keydown", control);
+        //document.addEventListener("keypress", control);
 
         //set the render loop
         f.Loop.addEventListener(f.EVENT.LOOP_FRAME, update);
@@ -92,7 +104,7 @@ namespace Snake3D {
 
         //set the snake update loop --> snake moves only 2 times per second
         snakeTime.setTimer(500, 0, snakeUpdate);
-        snakeTime.setTimer(5000, 0, spawnFruit);
+        fruitTime.setTimer(4000, 0, spawnFruit);
     }
 
     function update(_event: f.Eventƒ): void {
@@ -102,43 +114,73 @@ namespace Snake3D {
     }
 
     function snakeUpdate(_event: f.EventTimer): void {
-        snake.move(collisionMap);
-        //snake.snakesDontFly(collisionMap);  
+        snake.move(collisionMap, fruitMap);
+        cameraAnchorNear.mtxLocal.translation = snake.getHeadPosition().translation;
+        //tmpHeadPosition = snake.getHeadPosition().translation;
     }
 
+    // function startFruitSpawnThread(): void {
+    // }
+
     function spawnFruit(): void {
-        let continueLoop: boolean = true;
-        while (continueLoop) {
             let rand: number = Math.random();
             let index: number = Math.round(blockarray.length * rand) - 1;
 
-            if (blockarray[index]._collisionEvents.includes(SnakeEvents.FRUITSPAWN)) {
-                let fruit: FruitBlock = new FruitBlock(blockarray[index].mtxLocal.translation);
-                fruit.mtxLocal.translateY(1);
-                world.addChild(fruit);
-                collisionMap.set(fruit.mtxLocal.translation.toString(), fruit._collisionEvents);
-                continueLoop = false;
-            }
+            let fruit: FruitBlock = new FruitBlock(blockarray[index].mtxLocal.translation);
+            fruit.mtxLocal.translateY(1);
+            world.addChild(fruit);
+            fruitMap.set(fruit.mtxLocal.translation.toString(), fruit);
+            collisionMap.set(fruit.mtxLocal.translation.toString(), fruit._collisionEvents);
+            
         }
-    }
 
     function control(_event: KeyboardEvent): void {
         switch (_event.code) {
             case f.KEYBOARD_CODE.D || f.KEYBOARD_CODE.ARROW_RIGHT:
                 snake.changeDirection(true);
+                snake.changeDirection(true);
                 break;
             case f.KEYBOARD_CODE.A || f.KEYBOARD_CODE.ARROW_LEFT:
                 snake.changeDirection(false);
+                snake.changeDirection(false);
+                break;
+            case f.KEYBOARD_CODE.W || f.KEYBOARD_CODE.ARROW_UP:
+                snake.resetDirection();
+                break;
+            case f.KEYBOARD_CODE.Q:
+                rotateVectorY(anchorTransformation, -5);
+                break;
+            case f.KEYBOARD_CODE.E:
+                rotateVectorY(anchorTransformation, -5);
                 break;
             default:
                break;
         }
     }
 
+    function rotateVectorY(_vector: f.Vector3, _deg: number): void {
+        _vector.x = _vector.x * Math.cos(_deg) + _vector.z * Math.sin(_deg);
+        _vector.z = - _vector.x * Math.sin(_deg) +  _vector.z * Math.cos(_deg);
+    }
+
     function controlCamera(): void {
-        cameraAnchor = snake.getHeadPosition();
-        cameraAnchor.translate(anchorTransformation);
-        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchor.translation, 0.03);
+        // cameraAnchor = snake.getHeadPosition();
+
+        // anchorTransformation.x = cameraDistance * Math.sin(cameraAngleTHETA) * Math.sin(cameraAnglePHI);
+        // anchorTransformation.y = cameraDistance * Math.cos(cameraAngleTHETA);
+        // anchorTransformation.z = cameraDistance * Math.sin(cameraAngleTHETA) * Math.cos(cameraAnglePHI);
+
+        // cameraAnchor.translate(anchorTransformation);
+        // cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchor.translation, 0.03);
+        
+        //cmpCamera.pivot.lookAt(snake.getHeadPosition().translation);
+
+        cameraAnchorFar.mtxLocal.translation = cameraAnchorNear.mtxLocal.translation;
+        cameraAnchorFar.mtxLocal.translate(anchorTransformation);
+
+        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchorFar.mtxLocal.translation, 0.04);
+        tmpHeadPosition = lerp(tmpHeadPosition, snake.getHeadPosition().translation, 0.05);
+        cmpCamera.pivot.lookAt(tmpHeadPosition, f.Vector3.Y());
     }
 
     function lerp(_from: f.Vector3, _to: f.Vector3, _percent: number): f.Vector3 {
@@ -149,13 +191,14 @@ namespace Snake3D {
         result.z = (_to.z - _from.z) * _percent + _from.z;
 
         if (result.magnitude < 0.01) {
-            return f.Vector3.ZERO();
+            //if the magnitude is too small , return the missing distance to finish lerping
+            return new f.Vector3(_to.x - _from.x, _to.y - _from.y, _to.z - _from.z);
         }
 
         return result;
     }
 
-    //Creates a chequerboard pattern as long as _length is an uneven integer
+    //Creates a chequerboard pattern as long as _length is an even integer
     function createPlatform(_startPosition: f.Vector3, _width: number, _length: number, _isFruitSpawn: boolean): void {
         
         let blackMat: f.Material = new f.Material("BlackBlock", f.ShaderFlat, new f.CoatColored(new f.Color(0.2, 0.2, 0.2, 1)));
@@ -195,7 +238,6 @@ namespace Snake3D {
         let tmpGround: f.Matrix4x4 = ramp.mtxLocal.copy;
         let elevator: f.Matrix4x4 = ramp.mtxLocal.copy;
         let pusher: f.Matrix4x4 = ramp.mtxLocal.copy;
-
 
         ramp.mtxLocal.rotateY(_rotation);
         world.addChild(ramp);
