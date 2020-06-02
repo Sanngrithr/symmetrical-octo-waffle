@@ -123,16 +123,16 @@ namespace Snake3D {
     // }
 
     function spawnFruit(): void {
-            let rand: number = Math.random();
-            let index: number = Math.round(blockarray.length * rand) - 1;
+        let rand: number = Math.random();
+        let index: number = Math.round(blockarray.length * rand) - 1;
 
-            let fruit: FruitBlock = new FruitBlock(blockarray[index].mtxLocal.translation);
-            fruit.mtxLocal.translateY(1);
-            world.addChild(fruit);
-            fruitMap.set(fruit.mtxLocal.translation.toString(), fruit);
-            collisionMap.set(fruit.mtxLocal.translation.toString(), fruit._collisionEvents);
-            
-        }
+        let fruit: FruitBlock = new FruitBlock(blockarray[index].mtxLocal.translation);
+        fruit.mtxLocal.translateY(1);
+        world.addChild(fruit);
+        fruitMap.set(fruit.mtxLocal.translation.toString(), fruit);
+        collisionMap.set(fruit.mtxLocal.translation.toString(), fruit._collisionEvents);
+        
+    }
 
     function control(_event: KeyboardEvent): void {
         switch (_event.code) {
@@ -144,23 +144,41 @@ namespace Snake3D {
                 snake.changeDirection(false);
                 snake.changeDirection(false);
                 break;
-            case f.KEYBOARD_CODE.W || f.KEYBOARD_CODE.ARROW_UP:
+            case f.KEYBOARD_CODE.W:
                 snake.resetDirection();
                 break;
-            case f.KEYBOARD_CODE.Q:
-                rotateVectorY(anchorTransformation, -5);
+            case f.KEYBOARD_CODE.ARROW_LEFT:
+                rotateVectorY(anchorTransformation, -Math.PI / 25);
                 break;
-            case f.KEYBOARD_CODE.E:
-                rotateVectorY(anchorTransformation, -5);
+            case f.KEYBOARD_CODE.ARROW_RIGHT:
+                rotateVectorY(anchorTransformation, Math.PI / 25);
+                break;
+            case f.KEYBOARD_CODE.ARROW_UP:
+                anchorTransformation.y = clamp(-7, 15, anchorTransformation.y + 0.5);
+                break;
+            case f.KEYBOARD_CODE.ARROW_DOWN:
+                anchorTransformation.y = clamp(-7, 15, anchorTransformation.y - 0.5);
                 break;
             default:
                break;
         }
     }
 
-    function rotateVectorY(_vector: f.Vector3, _deg: number): void {
-        _vector.x = _vector.x * Math.cos(_deg) + _vector.z * Math.sin(_deg);
-        _vector.z = - _vector.x * Math.sin(_deg) +  _vector.z * Math.cos(_deg);
+    function rotateVectorY(_vector: f.Vector3, _rad: number): void {
+        _vector.x = _vector.z * Math.sin(_rad) + _vector.x * Math.cos(_rad);
+        _vector.z = _vector.z * Math.cos(_rad) - _vector.x * Math.sin(_rad);
+    }
+
+    function clamp(_min: number, _max: number, _arg: number): number {
+        if (_arg >= _max) {
+            return _max;
+        }
+            
+        if (_arg <= _min) {
+            return _min;
+        }
+            
+        return _arg;
     }
 
     function controlCamera(): void {
@@ -172,13 +190,12 @@ namespace Snake3D {
 
         // cameraAnchor.translate(anchorTransformation);
         // cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchor.translation, 0.03);
-        
         //cmpCamera.pivot.lookAt(snake.getHeadPosition().translation);
 
         cameraAnchorFar.mtxLocal.translation = cameraAnchorNear.mtxLocal.translation;
         cameraAnchorFar.mtxLocal.translate(anchorTransformation);
 
-        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchorFar.mtxLocal.translation, 0.04);
+        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchorFar.mtxLocal.translation, 0.1);
         tmpHeadPosition = lerp(tmpHeadPosition, snake.getHeadPosition().translation, 0.05);
         cmpCamera.pivot.lookAt(tmpHeadPosition, f.Vector3.Y());
     }
@@ -190,7 +207,7 @@ namespace Snake3D {
         result.y = (_to.y - _from.y) * _percent + _from.y;
         result.z = (_to.z - _from.z) * _percent + _from.z;
 
-        if (result.magnitude < 0.01) {
+        if (result.magnitude < 0.02) {
             //if the magnitude is too small , return the missing distance to finish lerping
             return new f.Vector3(_to.x - _from.x, _to.y - _from.y, _to.z - _from.z);
         }
@@ -242,7 +259,6 @@ namespace Snake3D {
         ramp.mtxLocal.rotateY(_rotation);
         world.addChild(ramp);
         collisionMap.set(ramp.mtxLocal.translation.toString(), ramp._collisionEvents);
-
 
         tmpGround.translateY(-1);
         pusher.translateY(1);

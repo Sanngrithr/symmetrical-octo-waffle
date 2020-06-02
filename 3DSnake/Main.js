@@ -117,22 +117,37 @@ var Snake3D;
                 snake.changeDirection(false);
                 snake.changeDirection(false);
                 break;
-            case f.KEYBOARD_CODE.W || f.KEYBOARD_CODE.ARROW_UP:
+            case f.KEYBOARD_CODE.W:
                 snake.resetDirection();
                 break;
-            case f.KEYBOARD_CODE.Q:
-                rotateVectorY(anchorTransformation, -5);
+            case f.KEYBOARD_CODE.ARROW_LEFT:
+                rotateVectorY(anchorTransformation, -Math.PI / 25);
                 break;
-            case f.KEYBOARD_CODE.E:
-                rotateVectorY(anchorTransformation, -5);
+            case f.KEYBOARD_CODE.ARROW_RIGHT:
+                rotateVectorY(anchorTransformation, Math.PI / 25);
+                break;
+            case f.KEYBOARD_CODE.ARROW_UP:
+                anchorTransformation.y = clamp(-7, 15, anchorTransformation.y + 0.5);
+                break;
+            case f.KEYBOARD_CODE.ARROW_DOWN:
+                anchorTransformation.y = clamp(-7, 15, anchorTransformation.y - 0.5);
                 break;
             default:
                 break;
         }
     }
-    function rotateVectorY(_vector, _deg) {
-        _vector.x = _vector.x * Math.cos(_deg) + _vector.z * Math.sin(_deg);
-        _vector.z = -_vector.x * Math.sin(_deg) + _vector.z * Math.cos(_deg);
+    function rotateVectorY(_vector, _rad) {
+        _vector.x = _vector.z * Math.sin(_rad) + _vector.x * Math.cos(_rad);
+        _vector.z = _vector.z * Math.cos(_rad) - _vector.x * Math.sin(_rad);
+    }
+    function clamp(_min, _max, _arg) {
+        if (_arg >= _max) {
+            return _max;
+        }
+        if (_arg <= _min) {
+            return _min;
+        }
+        return _arg;
     }
     function controlCamera() {
         // cameraAnchor = snake.getHeadPosition();
@@ -144,7 +159,7 @@ var Snake3D;
         //cmpCamera.pivot.lookAt(snake.getHeadPosition().translation);
         cameraAnchorFar.mtxLocal.translation = cameraAnchorNear.mtxLocal.translation;
         cameraAnchorFar.mtxLocal.translate(anchorTransformation);
-        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchorFar.mtxLocal.translation, 0.04);
+        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchorFar.mtxLocal.translation, 0.1);
         tmpHeadPosition = lerp(tmpHeadPosition, snake.getHeadPosition().translation, 0.05);
         cmpCamera.pivot.lookAt(tmpHeadPosition, f.Vector3.Y());
     }
@@ -153,7 +168,7 @@ var Snake3D;
         result.x = (_to.x - _from.x) * _percent + _from.x;
         result.y = (_to.y - _from.y) * _percent + _from.y;
         result.z = (_to.z - _from.z) * _percent + _from.z;
-        if (result.magnitude < 0.01) {
+        if (result.magnitude < 0.02) {
             //if the magnitude is too small , return the missing distance to finish lerping
             return new f.Vector3(_to.x - _from.x, _to.y - _from.y, _to.z - _from.z);
         }
