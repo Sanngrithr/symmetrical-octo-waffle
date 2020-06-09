@@ -25,8 +25,6 @@ namespace Snake3D {
             this.position = _position;
             this._collisionEvents = [SnakeEvents.RAMP];
             this.direction = _direction;
-
-            //help blocks for correct snake movement behaviour
         }
     }
 }

@@ -18,7 +18,6 @@ var Snake3D;
             this.position = _position;
             this._collisionEvents = [Snake3D.SnakeEvents.RAMP];
             this.direction = _direction;
-            //help blocks for correct snake movement behaviour
         }
     }
     Snake3D.RampBlock = RampBlock;

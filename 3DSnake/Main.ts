@@ -82,7 +82,6 @@ namespace Snake3D {
         cmpDirLight.pivot.rotateY(-160);
         world.addComponent(cmpDirLight);
 
-
         //set up camera logic
         cameraAnchorNear = new f.Node("Camera Anchor 1");
         cameraAnchorNear.addComponent(new f.ComponentTransform(snake.getChildren()[0].mtxLocal.copy));
@@ -102,7 +101,6 @@ namespace Snake3D {
 
         //keyboard input-handling
         document.addEventListener("keydown", control);
-        //document.addEventListener("keypress", control);
 
         //set the render loop
         f.Loop.addEventListener(f.EVENT.LOOP_FRAME, update);
@@ -116,7 +114,6 @@ namespace Snake3D {
     function update(_event: f.Eventƒ): void {
         controlCamera();
         viewport.draw();
-        //lerp the camera position in the draw update towards the snake head
     }
 
     function snakeUpdate(_event: f.EventTimer): void {
@@ -124,11 +121,7 @@ namespace Snake3D {
             snake.move(collisionMap, fruitMap);
         }
         cameraAnchorNear.mtxLocal.translation = snake.getHeadPosition().translation;
-        //tmpHeadPosition = snake.getHeadPosition().translation;
     }
-
-    // function startFruitSpawnThread(): void {
-    // }
 
     function spawnFruit(): void {
         let rand: number = Math.random();
@@ -155,16 +148,16 @@ namespace Snake3D {
                 snake.resetDirection();
                 break;
             case f.KEYBOARD_CODE.ARROW_LEFT:
-                rotateVectorY(anchorTransformation, -Math.PI / 25);
+                rotateVectorY(anchorTransformation, -Math.PI / 20);
                 break;
             case f.KEYBOARD_CODE.ARROW_RIGHT:
-                rotateVectorY(anchorTransformation, Math.PI / 25);
+                rotateVectorY(anchorTransformation, Math.PI / 20);
                 break;
             case f.KEYBOARD_CODE.ARROW_UP:
-                anchorTransformation.y = clamp(-7, 15, anchorTransformation.y + 0.5);
+                anchorTransformation.y = clamp(-7, 15, anchorTransformation.y + 0.7);
                 break;
             case f.KEYBOARD_CODE.ARROW_DOWN:
-                anchorTransformation.y = clamp(-7, 15, anchorTransformation.y - 0.5);
+                anchorTransformation.y = clamp(-7, 15, anchorTransformation.y - 0.7);
                 break;
             default:
                break;
@@ -172,33 +165,23 @@ namespace Snake3D {
     }
 
     function rotateVectorY(_vector: f.Vector3, _rad: number): void {
-        _vector.x = _vector.z * Math.sin(_rad) + _vector.x * Math.cos(_rad);
-        _vector.z = _vector.z * Math.cos(_rad) - _vector.x * Math.sin(_rad);
+        let newX: number = _vector.z * Math.sin(_rad) + _vector.x * Math.cos(_rad);
+        let newZ: number = _vector.z * Math.cos(_rad) - _vector.x * Math.sin(_rad);
+        _vector.x = newX;
+        _vector.z = newZ;
     }
 
     function clamp(_min: number, _max: number, _arg: number): number {
         if (_arg >= _max) {
             return _max;
-        }
-            
+        }   
         if (_arg <= _min) {
             return _min;
         }
-            
         return _arg;
     }
 
     function controlCamera(): void {
-        // cameraAnchor = snake.getHeadPosition();
-
-        // anchorTransformation.x = cameraDistance * Math.sin(cameraAngleTHETA) * Math.sin(cameraAnglePHI);
-        // anchorTransformation.y = cameraDistance * Math.cos(cameraAngleTHETA);
-        // anchorTransformation.z = cameraDistance * Math.sin(cameraAngleTHETA) * Math.cos(cameraAnglePHI);
-
-        // cameraAnchor.translate(anchorTransformation);
-        // cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchor.translation, 0.03);
-        //cmpCamera.pivot.lookAt(snake.getHeadPosition().translation);
-
         cameraAnchorFar.mtxLocal.translation = cameraAnchorNear.mtxLocal.translation;
         cameraAnchorFar.mtxLocal.translate(anchorTransformation);
 
@@ -275,5 +258,4 @@ namespace Snake3D {
         collisionMap.set(tmpGround.translation.toString(), [SnakeEvents.GROUND]);
         collisionMap.set(pusher.translation.toString(), [SnakeEvents.PUSHDOWN]);
     }
-
 }
