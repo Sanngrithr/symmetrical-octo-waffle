@@ -71,6 +71,14 @@ namespace FirstFudge {
 
     function collisionCheck(_event: f.Eventƒ): void {
         let ballScaling: f.Vector3 = ball.mtxLocal.scaling;
+
+        // get ball position and calculate edges
+        // get all objects the ball can collide from "collisionRoot"'s children
+        // check if ball collides with an object
+        // check on what edge the ball collides with the objeect
+        // reflect ball in appropriate direction 
+
+
     }
 
     function createBlocks(_colliderRoot: f.Node, _position: f.Vector3, _numberOfBlocks: number): void {
