@@ -5,7 +5,7 @@ var FirstFudge;
     window.addEventListener("load", hndLoad);
     let player = new f.Node("Cube");
     let ball = new f.Node("Ball");
-    //let colliderRoot: f.Node = new f.Node("Collider Root");
+    let colliderRoot = new f.Node("Collider Root");
     let speed = 0.2;
     let velocity = new f.Vector3(0.5, 0.5, 0);
     function hndLoad(_event) {
@@ -29,9 +29,11 @@ var FirstFudge;
         player.mtxLocal.scaleY(0.75);
         root.addChild(player);
         root.addChild(ball);
+        root.addChild(colliderRoot);
         let cmpCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(20);
         cmpCamera.pivot.rotateY(180);
+        createBlocks(colliderRoot, new f.Vector3(-5, 4, 0), 6);
         FirstFudge.viewport = new f.Viewport();
         FirstFudge.viewport.initialize("Viewport", root, cmpCamera, canvas);
         window.addEventListener("keydown", control);
@@ -48,7 +50,14 @@ var FirstFudge;
         FirstFudge.viewport.draw();
     }
     function collisionCheck(_event) {
-        let ballScaling = ball.mtxWorld.scaling;
+        //let ballScaling: f.Vector3 = ball.mtxWorld.scaling;
+    }
+    function createBlocks(_colliderRoot, _position, _numberOfBlocks) {
+        for (let i = 0; i < _numberOfBlocks; i++) {
+            let tmpBlock = new FirstFudge.Block(_position);
+            _colliderRoot.addChild(tmpBlock);
+            _position.x = _position.x + 2.4;
+        }
     }
     function control(_event) {
         let direction = f.Vector3.ZERO();

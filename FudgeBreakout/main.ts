@@ -7,7 +7,7 @@ namespace FirstFudge {
 
     let player: f.Node = new f.Node("Cube");
     let ball: f.Node = new f.Node("Ball");
-    //let colliderRoot: f.Node = new f.Node("Collider Root");
+    let colliderRoot: f.Node = new f.Node("Collider Root");
     let speed: number = 0.2;
     let velocity: f.Vector3 = new f.Vector3(0.5, 0.5, 0);
 
@@ -39,10 +39,13 @@ namespace FirstFudge {
 
         root.addChild(player);
         root.addChild(ball);
+        root.addChild(colliderRoot);
 
         let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(20);
         cmpCamera.pivot.rotateY(180);
+
+        createBlocks(colliderRoot, new f.Vector3(-5, 4, 0), 6);
 
         viewport = new f.Viewport();
         viewport.initialize("Viewport", root, cmpCamera, canvas);
@@ -67,7 +70,15 @@ namespace FirstFudge {
     }
 
     function collisionCheck(_event: f.Eventƒ): void {
-        let ballScaling: f.Vector3 = ball.mtxWorld.scaling;
+        let ballScaling: f.Vector3 = ball.mtxLocal.scaling;
+    }
+
+    function createBlocks(_colliderRoot: f.Node, _position: f.Vector3, _numberOfBlocks: number): void {
+        for (let i: number = 0; i < _numberOfBlocks; i++) {
+            let tmpBlock: Block = new Block(_position);
+            _colliderRoot.addChild(tmpBlock);
+            _position.x = _position.x + 2.4;
+        }
     }
 
     function control(_event: KeyboardEvent): void {
