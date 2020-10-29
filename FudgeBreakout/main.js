@@ -52,11 +52,16 @@ var FirstFudge;
         FirstFudge.viewport.draw();
     }
     function collisionCheck(_event) {
-        // get ball position and calculate edges
+        for (let block of colliderRoot.getChildren()) {
+            for (let ballEdge of ballEdges) {
+                for (let blockEdge of block.)
+                    ;
+            }
+        }
         // get all objects the ball can collide from "collisionRoot"'s children
         // check if ball collides with an object
         // check on what edge the ball collides with the objeect
-        // reflect ball in appropriate direction 
+        // reflect ball in appropriate direction
     }
     function createBlocks(_colliderRoot, _position, _numberOfBlocks, _spacing) {
         for (let i = 0; i < _numberOfBlocks; i++) {

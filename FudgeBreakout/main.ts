@@ -73,11 +73,23 @@ namespace FirstFudge {
 
     function collisionCheck(_event: f.Eventƒ): void {
 
-        // get ball position and calculate edges
+        // for (let block of colliderRoot.getChildren()) {
+        //     if (block instanceof Block) {
+        //         for (let ballEdge of ballEdges) {
+        //             for (let blockEdge of block.boundingBox) {
+
+        //                 if (ballEdge.x <= blockEdge.x )
+        //             }
+        //         }
+        //     }
+        // }
+
+
         // get all objects the ball can collide from "collisionRoot"'s children
         // check if ball collides with an object
         // check on what edge the ball collides with the objeect
-        // reflect ball in appropriate direction 
+        // reflect ball in appropriate direction
+
     }
 
     function createBlocks(_colliderRoot: f.Node, _position: f.Vector3, _numberOfBlocks: number, _spacing: number): void {
