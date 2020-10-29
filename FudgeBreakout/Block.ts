@@ -4,6 +4,8 @@ namespace FirstFudge {
 
     export class Block extends f.Node {
 
+        public boundingBox: Array<f.Vector2> = new Array<f.Vector2>(4);
+
         constructor(_position: f.Vector3) {
             super("Block");
 
@@ -18,6 +20,17 @@ namespace FirstFudge {
 
             this.mtxLocal.scaleX(2);
             this.mtxLocal.scaleY(0.75);
+
+            let center: f.Vector2 = new f.Vector2(_position.x, _position.y);
+            let p1: f.Vector2 = new f.Vector2(center.x - (this.mtxLocal.scaling.x / 2), center.y - (this.mtxLocal.scaling.y / 2));
+            let p2: f.Vector2 = new f.Vector2(center.x - (this.mtxLocal.scaling.x / 2), center.y + (this.mtxLocal.scaling.y / 2));
+            let p3: f.Vector2 = new f.Vector2(center.x + (this.mtxLocal.scaling.x / 2), center.y + (this.mtxLocal.scaling.y / 2));
+            let p4: f.Vector2 = new f.Vector2(center.x + (this.mtxLocal.scaling.x / 2), center.y - (this.mtxLocal.scaling.y / 2));
+        
+            this.boundingBox.push(p1);
+            this.boundingBox.push(p2);
+            this.boundingBox.push(p3);
+            this.boundingBox.push(p4);
         }
     }
 }

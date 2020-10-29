@@ -7,6 +7,7 @@ namespace FirstFudge {
 
     let player: f.Node = new f.Node("Cube");
     let ball: f.Node = new f.Node("Ball");
+    let ballEdges: Array<f.Vector2> = new Array<f.Vector2>();
     let colliderRoot: f.Node = new f.Node("Collider Root");
     let speed: number = 0.2;
     let velocity: f.Vector3 = new f.Vector3(0.5, 0.5, 0);
@@ -45,7 +46,8 @@ namespace FirstFudge {
         cmpCamera.pivot.translateZ(20);
         cmpCamera.pivot.rotateY(180);
 
-        createBlocks(colliderRoot, new f.Vector3(-5, 4, 0), 6);
+        calculateBallEdges(ball, 16);
+        createBlocks(colliderRoot, new f.Vector3(-5, 4, 0), 6, 0.4);
 
         viewport = new f.Viewport();
         viewport.initialize("Viewport", root, cmpCamera, canvas);
@@ -70,22 +72,28 @@ namespace FirstFudge {
     }
 
     function collisionCheck(_event: f.Eventƒ): void {
-        let ballScaling: f.Vector3 = ball.mtxLocal.scaling;
 
         // get ball position and calculate edges
         // get all objects the ball can collide from "collisionRoot"'s children
         // check if ball collides with an object
         // check on what edge the ball collides with the objeect
         // reflect ball in appropriate direction 
-
-
     }
 
-    function createBlocks(_colliderRoot: f.Node, _position: f.Vector3, _numberOfBlocks: number): void {
+    function createBlocks(_colliderRoot: f.Node, _position: f.Vector3, _numberOfBlocks: number, _spacing: number): void {
         for (let i: number = 0; i < _numberOfBlocks; i++) {
             let tmpBlock: Block = new Block(_position);
             _colliderRoot.addChild(tmpBlock);
-            _position.x = _position.x + 2.4;
+            _position.x = _position.x + (tmpBlock.mtxLocal.scaling.x + _spacing);
+        }
+    }
+
+    function calculateBallEdges(_ball: f.Node, _numOfEdges: number): void {
+        let center: f.Vector2 = new f.Vector2(_ball.mtxLocal.translation.x, _ball.mtxLocal.translation.y); 
+
+        for (let i: number = 0; i < _numOfEdges; i++) {
+            let tmpEdge: f.Vector2 = new f.Vector2(center.x + Math.cos(2 * Math.PI / i), center.y + Math.sin(2 * Math.PI / i));
+            ballEdges.push(tmpEdge);
         }
     }
 

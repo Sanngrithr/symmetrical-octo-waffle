@@ -5,6 +5,7 @@ var FirstFudge;
     window.addEventListener("load", hndLoad);
     let player = new f.Node("Cube");
     let ball = new f.Node("Ball");
+    let ballEdges = new Array();
     let colliderRoot = new f.Node("Collider Root");
     let speed = 0.2;
     let velocity = new f.Vector3(0.5, 0.5, 0);
@@ -33,7 +34,8 @@ var FirstFudge;
         let cmpCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(20);
         cmpCamera.pivot.rotateY(180);
-        createBlocks(colliderRoot, new f.Vector3(-5, 4, 0), 6);
+        calculateBallEdges(ball, 16);
+        createBlocks(colliderRoot, new f.Vector3(-5, 4, 0), 6, 0.4);
         FirstFudge.viewport = new f.Viewport();
         FirstFudge.viewport.initialize("Viewport", root, cmpCamera, canvas);
         window.addEventListener("keydown", control);
@@ -50,13 +52,24 @@ var FirstFudge;
         FirstFudge.viewport.draw();
     }
     function collisionCheck(_event) {
-        //let ballScaling: f.Vector3 = ball.mtxWorld.scaling;
+        // get ball position and calculate edges
+        // get all objects the ball can collide from "collisionRoot"'s children
+        // check if ball collides with an object
+        // check on what edge the ball collides with the objeect
+        // reflect ball in appropriate direction 
     }
-    function createBlocks(_colliderRoot, _position, _numberOfBlocks) {
+    function createBlocks(_colliderRoot, _position, _numberOfBlocks, _spacing) {
         for (let i = 0; i < _numberOfBlocks; i++) {
             let tmpBlock = new FirstFudge.Block(_position);
             _colliderRoot.addChild(tmpBlock);
-            _position.x = _position.x + 2.4;
+            _position.x = _position.x + (tmpBlock.mtxLocal.scaling.x + _spacing);
+        }
+    }
+    function calculateBallEdges(_ball, _numOfEdges) {
+        let center = new f.Vector2(_ball.mtxLocal.translation.x, _ball.mtxLocal.translation.y);
+        for (let i = 0; i < _numOfEdges; i++) {
+            let tmpEdge = new f.Vector2(center.x + Math.cos(2 * Math.PI / i), center.y + Math.sin(2 * Math.PI / i));
+            ballEdges.push(tmpEdge);
         }
     }
     function control(_event) {
