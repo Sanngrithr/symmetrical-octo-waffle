@@ -34,15 +34,22 @@ var FirstFudge21;
         rotato0 = object;
         FirstFudge21.viewport = new f.Viewport();
         FirstFudge21.viewport.initialize("Viewport", root, cmpCamera, canvas);
+        f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, rotateCube);
         f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
+        f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update2);
         f.Loop.start(f.LOOP_MODE.TIME_REAL, 60);
     }
     function update() {
-        rotateCube();
+        //rotateCube();
         FirstFudge21.viewport.draw();
+        f.Debug.log("update drawing executed @" + f.Loop.timeStartReal);
+    }
+    function update2() {
+        f.Debug.log("update 2 executed @" + f.Loop.timeStartReal);
     }
     function rotateCube() {
-        rotato0.mtxLocal.rotateZ(1.5);
+        let rotationSpeed = 90 / 1000;
+        rotato0.mtxLocal.rotateZ(rotationSpeed * (f.Loop.timeFrameReal));
     }
 })(FirstFudge21 || (FirstFudge21 = {}));
 //# sourceMappingURL=Main.js.map

@@ -45,17 +45,25 @@ namespace FirstFudge21 {
 
         viewport = new f.Viewport();
         viewport.initialize("Viewport", root, cmpCamera, canvas);
-
+        
+        f.Loop.addEventListener(f.EVENT.LOOP_FRAME, rotateCube);
         f.Loop.addEventListener(f.EVENT.LOOP_FRAME, update);
+        f.Loop.addEventListener(f.EVENT.LOOP_FRAME, update2);
         f.Loop.start(f.LOOP_MODE.TIME_REAL, 60);
     }
 
     function update(): void {
-        rotateCube();
+        //rotateCube();
         viewport.draw();
+        f.Debug.log("update drawing executed @" + f.Loop.timeStartReal);
+    }
+
+    function update2(): void {
+        f.Debug.log("update 2 executed @" + f.Loop.timeStartReal);
     }
 
     function rotateCube(): void {
-        rotato0.mtxLocal.rotateZ(1.5);
+        let rotationSpeed: number = 90 / 1000;
+        rotato0.mtxLocal.rotateZ(rotationSpeed * (f.Loop.timeFrameReal));
     }
 }
