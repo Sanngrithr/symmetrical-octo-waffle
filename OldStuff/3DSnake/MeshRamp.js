@@ -16,7 +16,6 @@ var Snake3D;
     class MeshRamp extends f.Mesh {
         constructor() {
             super();
-            this.create();
         }
         createVertices() {
             let vertices = new Float32Array([

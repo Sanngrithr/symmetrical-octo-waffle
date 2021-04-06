@@ -65,8 +65,8 @@ var Snake3D;
         //add directional lightsource for sun shadows
         let dirLight = new f.LightDirectional(new f.Color(0.8, 0.8, 0.8, 1));
         let cmpDirLight = new f.ComponentLight(dirLight);
-        cmpDirLight.pivot.rotateX(40);
-        cmpDirLight.pivot.rotateY(-160);
+        cmpDirLight.mtxPivot.rotateX(40);
+        cmpDirLight.mtxPivot.rotateY(-160);
         world.addComponent(cmpDirLight);
         //set up camera logic
         cameraAnchorNear = new f.Node("Camera Anchor 1");
@@ -74,10 +74,10 @@ var Snake3D;
         snake.getChildren()[0].addChild(cameraAnchorNear);
         cameraAnchorFar = new f.Node("Camera Anchor 2");
         cameraAnchorFar.addComponent(new f.ComponentTransform(snake.getChildren()[0].mtxLocal.copy));
-        cameraAnchorFar.cmpTransform.local.translate(anchorTransformation);
+        cameraAnchorFar.cmpTransform.mtxLocal.translate(anchorTransformation);
         cameraAnchorNear.addChild(cameraAnchorFar);
-        cmpCamera.pivot.translation = cameraAnchorFar.mtxLocal.translation;
-        cmpCamera.pivot.lookAt(snake.getHeadPosition().translation, f.Vector3.Y());
+        cmpCamera.mtxPivot.translation = cameraAnchorFar.mtxLocal.translation;
+        cmpCamera.mtxPivot.lookAt(snake.getHeadPosition().translation, f.Vector3.Y());
         tmpHeadPosition = snake.getHeadPosition().translation;
         Snake3D.viewport = new f.Viewport();
         Snake3D.viewport.initialize("Viewport", world, cmpCamera, canvas);
@@ -156,9 +156,9 @@ var Snake3D;
     function controlCamera() {
         cameraAnchorFar.mtxLocal.translation = cameraAnchorNear.mtxLocal.translation;
         cameraAnchorFar.mtxLocal.translate(anchorTransformation);
-        cmpCamera.pivot.translation = lerp(cmpCamera.pivot.translation, cameraAnchorFar.mtxLocal.translation, 0.1);
+        cmpCamera.mtxPivot.translation = lerp(cmpCamera.mtxPivot.translation, cameraAnchorFar.mtxLocal.translation, 0.1);
         tmpHeadPosition = lerp(tmpHeadPosition, snake.getHeadPosition().translation, 0.05);
-        cmpCamera.pivot.lookAt(tmpHeadPosition, f.Vector3.Y());
+        cmpCamera.mtxPivot.lookAt(tmpHeadPosition, f.Vector3.Y());
     }
     function lerp(_from, _to, _percent) {
         let result = f.Vector3.ZERO();
@@ -190,7 +190,7 @@ var Snake3D;
                 }
                 let block = new Snake3D.GroundBlock(new f.Vector3(_i, _startPosition.y, _j), _isFruitSpawn, currentColor);
                 world.addChild(block);
-                collisionMap.set(block.cmpTransform.local.translation.toString(), block._collisionEvents);
+                collisionMap.set(block.cmpTransform.mtxLocal.translation.toString(), block._collisionEvents);
                 if (_isFruitSpawn) {
                     blockarray.push(block);
                 }

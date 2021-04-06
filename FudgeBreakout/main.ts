@@ -18,7 +18,7 @@ namespace FirstFudge {
         let root: f.Node = new f.Node("Root");
 
         let mesh: f.MeshCube = new f.MeshCube();
-        let ballMesh: f.MeshSphere = new f.MeshSphere(10, 10);
+        let ballMesh: f.MeshSphere = new f.MeshSphere("sphere^1", 10, 10);
         let cmpMesh: f.ComponentMesh = new f.ComponentMesh(mesh);
         let cmpBallMesh: f.ComponentMesh = new f.ComponentMesh(ballMesh);
 
@@ -43,8 +43,8 @@ namespace FirstFudge {
         root.addChild(colliderRoot);
 
         let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
-        cmpCamera.pivot.translateZ(20);
-        cmpCamera.pivot.rotateY(180);
+        cmpCamera.mtxPivot.translateZ(20);
+        cmpCamera.mtxPivot.rotateY(180);
 
         calculateBallEdges(ball, 16);
         createBlocks(colliderRoot, new f.Vector3(-5, 4, 0), 6, 0.4);

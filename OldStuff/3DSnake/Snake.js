@@ -19,7 +19,7 @@ var Snake3D;
             this.state = SnakeState.GROUNDED;
             this.direction = f.Vector3.X(); //tells the snake in which direction it's going to move
             this.newDirection = this.direction; //for self-collision checking purposes; the snake can't invert itself
-            this.snakeMesh = new f.MeshSphere(36, 36);
+            this.snakeMesh = new f.MeshSphere("Sphere", 36, 36);
             this.mtrSolidWhite = new f.Material("SolidWhite", f.ShaderFlat, new f.CoatColored(f.Color.CSS("WHITE")));
             console.log("Creating Snake");
             this.createSegments(3);
@@ -61,7 +61,7 @@ var Snake3D;
         getHeadPosition() {
             let headNode = this.getChildren()[0];
             let headTransform = headNode.getComponent(f.ComponentTransform);
-            return headTransform.local.copy;
+            return headTransform.mtxLocal.copy;
         }
         move(_collMap, _fruitMap) {
             this.setSnakeState(_collMap);
@@ -70,7 +70,7 @@ var Snake3D;
                     this.moveHead(_collMap);
                     break;
                 case SnakeState.CLIMBING:
-                    this.getChildren()[0].cmpTransform.local.translateY(1);
+                    this.getChildren()[0].cmpTransform.mtxLocal.translateY(1);
                     break;
                 case SnakeState.RAMPING:
                     this.moveHead(_collMap);
@@ -79,7 +79,7 @@ var Snake3D;
                     break;
                 case SnakeState.FALLING:
                     this.dragTail(this.getHeadPosition(), _collMap);
-                    this.getChildren()[0].cmpTransform.local.translateY(-1);
+                    this.getChildren()[0].cmpTransform.mtxLocal.translateY(-1);
                     break;
                 default:
                     f.Debug.log("Something broke in move(), we shouldn't be in here. Did I forget to implement a State?");
@@ -145,7 +145,7 @@ var Snake3D;
             //find the transform of the snake head
             let headNode = this.getChildren()[0];
             let cmpPrev = headNode.getComponent(f.ComponentTransform);
-            let mtxHead = cmpPrev.local.copy;
+            let mtxHead = cmpPrev.mtxLocal.copy;
             //lock in the new direction and move towards it
             this.direction = this.newDirection;
             mtxHead.translate(this.direction);
@@ -166,7 +166,7 @@ var Snake3D;
                 let node = new f.Node("Segment");
                 let cmpMesh = new f.ComponentMesh(this.snakeMesh);
                 node.addComponent(cmpMesh);
-                cmpMesh.pivot.scale(f.Vector3.ONE(0.8));
+                cmpMesh.mtxPivot.scale(f.Vector3.ONE(0.8));
                 let cmpMaterial = new f.ComponentMaterial(this.mtrSolidWhite);
                 node.addComponent(cmpMaterial);
                 node.addComponent(new f.ComponentTransform(f.Matrix4x4.TRANSLATION(new f.Vector3(-1 * i, 0, 0))));
@@ -177,7 +177,7 @@ var Snake3D;
             let node = new f.Node("Segment");
             let cmpMesh = new f.ComponentMesh(this.snakeMesh);
             node.addComponent(cmpMesh);
-            cmpMesh.pivot.scale(f.Vector3.ONE(0.8));
+            cmpMesh.mtxPivot.scale(f.Vector3.ONE(0.8));
             let cmpMaterial = new f.ComponentMaterial(this.mtrSolidWhite);
             node.addComponent(cmpMaterial);
             let index = this.getChildren().length - 1;

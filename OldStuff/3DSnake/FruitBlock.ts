@@ -10,12 +10,12 @@ namespace Snake3D {
             console.log("Creating Fruit Block");
 
             //maybe define the resources in a builder superclass that manages building the levels
-            let mesh: f.MeshSphere = new f.MeshSphere(10, 10);
+            let mesh: f.MeshSphere = new f.MeshSphere("Fruit", 10, 10);
             let mat: f.Material = new f.Material("SolidRed", f.ShaderFlat, new f.CoatColored(new f.Color(1, 0, 0, 1)));
 
             //add mesh and material to the node
             let cmpMesh: f.ComponentMesh = new f.ComponentMesh(mesh);
-            cmpMesh.pivot.scale(f.Vector3.ONE(0.6));
+            cmpMesh.mtxPivot.scale(f.Vector3.ONE(0.6));
             let cmpMat: f.ComponentMaterial = new f.ComponentMaterial(mat);
             this.addComponent(cmpMesh); 
             this.addComponent(cmpMat);

@@ -60,8 +60,8 @@ namespace TowerDefense {
         root.addChild(enemy);
     
         let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
-        cmpCamera.pivot.translateZ(20);
-        cmpCamera.pivot.rotateY(180);
+        cmpCamera.mtxPivot.translateZ(20);
+        cmpCamera.mtxPivot.rotateY(180);
 
         window.addEventListener("keypress", controlPlayer);
 

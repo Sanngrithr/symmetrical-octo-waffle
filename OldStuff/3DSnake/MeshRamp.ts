@@ -17,7 +17,6 @@ namespace Snake3D {
      
       public constructor() {
         super();
-        this.create();
       }
   
   
